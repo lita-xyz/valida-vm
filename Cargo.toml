@@ -1,0 +1,61 @@
+[workspace]
+members = [
+    "assembler",
+    "alu_u32",
+    "basic",
+    "basic-api",
+    "basic-api-wasm",
+    #"basic_macro",
+    "bus",
+    "bytes",
+    "cpu",
+    "derive",
+    "elf",
+    "elliptic",
+    "lookups",
+    "machine",
+    "memory",
+    "memory_footprint",
+    "native_field",
+    "opcodes",
+    "output",
+    "persistence",
+    "program",
+    "range",
+    "static_data",
+    "keccak",
+    "util",
+    "verifier",
+    "recursive-verifier-api",
+    "recursive-verifier",
+]
+
+resolver = "2"
+
+[workspace.dependencies]
+p3-air = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-baby-bear = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-commit = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-challenger = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-dft = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-field = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-fri = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-goldilocks = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-interpolation = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-keccak = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-matrix = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main", features = [
+    "serde",
+] }
+p3-maybe-rayon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-mds = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-merkle-tree = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-poseidon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-symmetric = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-uni-stark = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-util = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+itertools = "0.14.0"
+smallvec = "1.13.2"
+spin = "0.9"
+# The default feature set for proptest includes process forking which can't be
+# supported on wasm32.
+proptest = { version = "1.6.0", default-features = false, features = ["std"] }

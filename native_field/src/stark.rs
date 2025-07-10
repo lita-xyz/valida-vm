@@ -1,0 +1,53 @@
+use super::columns::NativeFieldCols;
+use super::NativeFieldChip;
+use core::borrow::Borrow;
+use core::fmt::Debug;
+
+use crate::columns::NUM_NATIVE_FIELD_COLS;
+use p3_air::{Air, AirBuilder, BaseAir};
+use p3_field::{AbstractField, PrimeField};
+use p3_matrix::MatrixRowSlices;
+
+impl<F> BaseAir<F> for NativeFieldChip {
+    fn width(&self) -> usize {
+        NUM_NATIVE_FIELD_COLS
+    }
+}
+
+impl<AB> Air<AB> for NativeFieldChip
+where
+    AB: AirBuilder,
+    AB::F: PrimeField + Debug,
+    AB::Expr: Debug,
+    AB::Var: Debug,
+{
+    fn eval(&self, builder: &mut AB) {
+        let main = builder.main();
+        let local: &NativeFieldCols<AB::Var> = main.row_slice(0).borrow();
+
+        let base_m = [1 << 24, 1 << 16, 1 << 8, 1].map(AB::Expr::from_canonical_u32);
+        let x = local.input_1;
+        let y = local.input_2;
+        let z = local.output;
+        let b = base_m[3].clone() * *x.index_be(3)
+            + base_m[2].clone() * *x.index_be(2)
+            + base_m[1].clone() * *x.index_be(1)
+            + base_m[0].clone() * *x.index_be(0);
+        let c = base_m[3].clone() * *y.index_be(3)
+            + base_m[2].clone() * *y.index_be(2)
+            + base_m[1].clone() * *y.index_be(1)
+            + base_m[0].clone() * *y.index_be(0);
+        let a = base_m[3].clone() * *z.index_be(3)
+            + base_m[2].clone() * *z.index_be(2)
+            + base_m[1].clone() * *z.index_be(1)
+            + base_m[0].clone() * *z.index_be(0);
+
+        let a_add = b.clone() + c.clone();
+        let a_sub = b.clone() - c.clone();
+        let a_mul = b.clone() * c.clone();
+
+        builder.when(local.is_add).assert_eq(a.clone(), a_add);
+        builder.when(local.is_sub).assert_eq(a.clone(), a_sub);
+        builder.when(local.is_mul).assert_eq(a, a_mul);
+    }
+}

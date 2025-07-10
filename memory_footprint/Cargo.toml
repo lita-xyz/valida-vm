@@ -1,0 +1,13 @@
+[package]
+name = "valida-memory-footprint"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+p3-field = { workspace = true }
+p3-matrix = { workspace = true }
+p3-baby-bear = { workspace = true }
+smallvec = { workspace = true }
+bitvec = "1.0.1"
+hashbrown = { version = "0.12", default-features = false, features = ["alloc"] }

@@ -1,0 +1,20 @@
+[package]
+name = "recursive-verifier-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ciborium = "0.2.2"
+p3-baby-bear = { workspace = true }
+postcard = { version = "1.0.10", features = ["alloc"] }
+
+valida-basic-api = { path = "../basic-api" }
+valida-machine = { path = "../machine" }
+valida-memory = { path = "../memory" }
+valida-elf = { path = "../elf" }
+valida-program = { path = "../program" }
+valida-static-data = { path = "../static_data" }
+
+# getrandom in valida
+# valida-rs = { git = "https://github.com/lita-xyz/valida-rs.git", branch = "main" }
+# getrandom = "0.2.15"

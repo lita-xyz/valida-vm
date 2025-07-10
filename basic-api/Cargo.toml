@@ -1,0 +1,93 @@
+[package]
+name = "valida-basic-api"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+ark-std = "0.4.0"
+byteorder = "1.4.3"
+ciborium = "0.2.2"
+clap = { version = "4.3.19", features = ["derive"] }
+rand = "0.8.5"
+rand_pcg = "0.3.1"
+rand_seeder = "0.2.3"
+tracing = "0.1.37"
+valida-alu-u32 = { path = "../alu_u32" }
+valida-assembler = { path = "../assembler" }
+valida-bus = { path = "../bus" }
+valida-bytes = { path = "../bytes" }
+valida-cpu = { path = "../cpu" }
+valida-derive = { path = "../derive" }
+valida-elf = { path = "../elf" }
+valida-elliptic = { path = "../elliptic" }
+valida-lookups = { path = "../lookups" }
+valida-machine = { path = "../machine" }
+valida-memory = { path = "../memory" }
+valida-opcodes = { path = "../opcodes" }
+valida-output = { path = "../output" }
+valida-program = { path = "../program" }
+valida-range = { path = "../range" }
+valida-static-data = { path = "../static_data" }
+valida-util = { path = "../util" }
+valida-keccak = { path = "../keccak"}
+valida-memory-footprint = { path = "../memory_footprint" }
+p3-baby-bear = { workspace = true }
+p3-field = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-util = { workspace = true }
+p3-goldilocks = { workspace = true }
+p3-uni-stark = { workspace = true }
+p3-commit = { workspace = true }
+p3-air = { workspace = true }
+p3-matrix = { workspace = true }
+p3-challenger = { workspace = true }
+p3-dft = { workspace = true }
+p3-fri = { workspace = true }
+p3-keccak = { workspace = true }
+p3-mds = { workspace = true }
+p3-merkle-tree = { workspace = true }
+p3-poseidon = { workspace = true }
+p3-symmetric = { workspace = true }
+postcard = { version = "1.0.10", features = ["alloc"] }
+
+[dev-dependencies]
+ciborium = "0.2.2"
+p3-challenger = { workspace = true }
+p3-dft = { workspace = true }
+p3-field = { workspace = true }
+p3-fri = { workspace = true }
+p3-keccak = { workspace = true }
+p3-merkle-tree = { workspace = true }
+p3-poseidon = { workspace = true }
+p3-symmetric = { workspace = true }
+criterion = "0.5.1"
+tiny-keccak = "2.0.2"
+proptest = { workspace = true }
+
+[[bench]]
+name = "keccak_bench"
+harness = false
+
+[features]
+print-timers = ["ark-std/print-trace"]
+
+# Runtime CPU feature detection, specialization for x86-64
+# Build with https://github.com/lita-xyz/cargo-multiarch
+# `cargo multiarch` instead of `cargo build --release`
+#
+# x86-64-v1: Fallback with no features
+# x86-64-v3: AVX2 CPUs (Intel Haswell 2013, AMD Excavator from 2015)
+[package.metadata.multiarch.x86_64]
+cpus = ["x86-64-v1", "x86-64-v3"]
+cpufeatures = [[]]
+
+# AVX2 + just AVX512F (AVX512 is a mess in CPU support in Intel between Knights Landing, Skylake-X, IceLake and then removed on consumer but available on Sapphire Rapids)
+# so it's better to specify specific features instead of specific CPUs.
+# Commented out until our version of Plonky3 is rebased with AVX512 acceleration.
+#
+# AVX512F implies SSE and AVX in compilers. We don't list floating point extensions like fp16 of FMA.
+#
+# cpufeatures = [
+#     ["avx512f","bmi1","bmi2","lzcnt","movbe","popcnt","xsave"]
+# ]

@@ -1,0 +1,32 @@
+[package]
+name = "valida-memory"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+
+[dependencies]
+fxhash = "0.2.1"
+hashbrown = "0.14.5"
+p3-air = { workspace = true }
+p3-baby-bear = { workspace = true }
+p3-field = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-uni-stark = { workspace = true }
+smallvec = { workspace = true }
+spin = { workspace = true }
+valida-bus = { path = "../bus" }
+valida-bytes = { path = "../bytes" }
+valida-machine = { path = "../machine" }
+valida-persistence = { path = "../persistence" }
+valida-lookups = { path = "../lookups" }
+valida-derive = { path = "../derive" }
+valida-util = { path = "../util" }
+valida-static-data = { path = "../static_data" }
+valida-memory-footprint = { path = "../memory_footprint" }
+
+[dependencies.bitvec]
+version = "1.0.1"
+default-features = false
+features = ["alloc"]

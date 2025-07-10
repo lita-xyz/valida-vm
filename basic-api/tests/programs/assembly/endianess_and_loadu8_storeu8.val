@@ -1,0 +1,29 @@
+main:
+        ; load the value 0x01020304 - imm32 encodes it by passing LSB (i.e. 0x01) to `b` and MSB (i.e. 0x04) to `e` as can be verified with objdump
+        ; see instruction format
+        ; https://github.com/lita-xyz/llvm-valida/blob/638398c75e55aec546417d083c45e2b9cc650f16/llvm/lib/Target/Delendum/DelendumInstrFormats.td#L385
+	;
+        ; fp - 4:  immediate 0x01020304
+        ; fp - 8:  address storage for load and store instructions
+        ; fp - 16: slot for storeu8 instruction
+        ; fp - 20: slot for loadu8 instruction
+        imm32	-4(fp), 1, 2, 3, 4
+        ;
+        loadfp  -8(fp), -16
+        ; store LSB from word at -4(fp)
+        storeu8 -8(fp), -4(fp)
+        ; load that LSB into a different cell
+        loadu8  -20(fp), -8(fp)
+        ; expected to print LSB; i.e. 0x01
+        write	0, -20, 0, 0, 1
+        ;
+        ; logical shift right by 8 bits to get next byte from word
+        divi    -4, -4, 256
+        ;
+        loadfp  -8(fp), -16
+        storeu8 -8(fp), -4(fp)
+        loadu8  -20(fp), -8(fp)
+        ; expected to print next to LSB; i.e. 0x02
+        write	0, -20, 0, 0, 1
+        ;
+        stop

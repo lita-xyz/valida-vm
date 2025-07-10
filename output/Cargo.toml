@@ -1,0 +1,28 @@
+[package]
+name = "valida-output"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+p3-air = { workspace = true }
+p3-baby-bear = { workspace = true }
+p3-field = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-uni-stark = { workspace = true }
+valida-alu-u32 = { path = "../alu_u32" }
+valida-bus = { path = "../bus" }
+valida-bytes = { path = "../bytes" }
+valida-cpu = { path = "../cpu" }
+valida-machine = { path = "../machine" }
+valida-memory = { path = "../memory" }
+valida-derive = { path = "../derive" }
+valida-util = { path = "../util" }
+valida-opcodes = { path = "../opcodes" }
+valida-range = { path = "../range" }
+valida-memory-footprint = { path = "../memory_footprint" }

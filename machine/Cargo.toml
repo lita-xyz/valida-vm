@@ -1,0 +1,40 @@
+[package]
+name = "valida-machine"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = [
+    "derive",
+    "alloc",
+] }
+bitvec = "1.0.1"
+byteorder = "1.4.3"
+fxhash = "0.2.1"
+hashbrown = { version = "0.12", default-features = false, features = ["alloc"] }
+itertools = { workspace = true }
+smallvec = { workspace = true }
+spin = { workspace = true }
+tracing = "0.1.37"
+
+valida-opcodes = { path = "../opcodes" }
+valida-memory-footprint = { path = "../memory_footprint" }
+
+p3-air = { workspace = true }
+p3-baby-bear = { workspace = true }
+p3-commit = { workspace = true }
+p3-challenger = { workspace = true }
+p3-dft = { workspace = true }
+p3-field = { workspace = true }
+p3-fri = { workspace = true }
+p3-interpolation = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-uni-stark = { workspace = true }
+p3-util = { workspace = true }
+valida-util = { path = "../util" }

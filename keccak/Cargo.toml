@@ -1,0 +1,26 @@
+[package]
+name = "valida-keccak"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+p3-air = { workspace = true }
+p3-baby-bear = { workspace = true }
+p3-field = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-uni-stark = { workspace = true }
+p3-keccak = { workspace = true }
+p3-symmetric = { workspace = true}
+valida-bus = { path = "../bus" }
+valida-machine = { path = "../machine" }
+valida-memory = { path = "../memory" }
+valida-cpu = { path = "../cpu" }
+valida-derive = { path = "../derive" }
+valida-util = { path = "../util" }
+valida-opcodes = { path = "../opcodes" }
+valida-range = {path = "../range"}
+valida-lookups = { path = "../lookups" }
+valida-memory-footprint = { path = "../memory_footprint" }
+smallvec = "1.13.2"
+spin = { workspace = true }

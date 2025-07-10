@@ -1,0 +1,45 @@
+[package]
+name = "recursive-verifier"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "recursive-specific"
+path = "src/bin/recursive-specific.rs"
+test = false
+
+[[bin]]
+name = "recursive-universal"
+path = "src/bin/recursive-universal.rs"
+test = false
+
+[dependencies]
+ark-std = "0.4.0"
+clap = { version = "4.3.19", features = ["derive"] }
+recursive-verifier-api = { path = "../recursive-verifier-api" }
+valida-program = { path = "../program" }
+valida-rs = { git = "https://github.com/lita-xyz/valida-rs", branch = "main" }
+
+[features]
+print-timers = ["ark-std/print-trace"]
+
+# Runtime CPU feature detection, specialization for x86-64
+# Build with https://github.com/lita-xyz/cargo-multiarch
+# `cargo multiarch` instead of `cargo build --release`
+#
+# x86-64-v1: Fallback with no features
+# x86-64-v3: AVX2 CPUs (Intel Haswell 2013, AMD Excavator from 2015)
+[package.metadata.multiarch.x86_64]
+cpus = ["x86-64-v1", "x86-64-v3"]
+cpufeatures = [[]]
+
+# AVX2 + just AVX512F (AVX512 is a mess in CPU support in Intel between Knights Landing, Skylake-X, IceLake and then removed on consumer but available on Sapphire Rapids)
+# so it's better to specify specific features instead of specific CPUs.
+# Commented out until our version of Plonky3 is rebased with AVX512 acceleration.
+#
+# AVX512F implies SSE and AVX in compilers. We don't list floating point extensions like fp16 of FMA.
+#
+# cpufeatures = [
+#     ["avx512f","bmi1","bmi2","lzcnt","movbe","popcnt","xsave"]
+# ]

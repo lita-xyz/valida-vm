@@ -1,0 +1,28 @@
+[package]
+name = "valida-alu-u32"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+itertools = { workspace = true }
+
+p3-air = { workspace = true }
+p3-baby-bear = { workspace = true }
+p3-field = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true }
+p3-uni-stark = { workspace = true }
+smallvec = { workspace = true }
+spin = { workspace = true }
+valida-bus = { path = "../bus" }
+valida-bytes = { path = "../bytes" }
+valida-derive = { path = "../derive" }
+valida-lookups = { path = "../lookups" }
+valida-machine = { path = "../machine" }
+valida-memory = { path = "../memory" }
+valida-cpu = { path = "../cpu" }
+valida-range = { path = "../range" }
+valida-util = { path = "../util" }
+valida-opcodes = { path = "../opcodes" }
+valida-memory-footprint = { path = "../memory_footprint" }
