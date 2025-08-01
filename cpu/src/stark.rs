@@ -76,8 +76,30 @@ where
             reduce::<AB>(&base, local.read_value_1()),
         );
 
+        let sum_opcode_flags = local.opcode_flags.is_bus_op
+            + local.opcode_flags.is_pointer_op
+            + local.opcode_flags.is_imm_op
+            + local.opcode_flags.is_left_imm_op
+            + local.opcode_flags.is_load
+            + local.opcode_flags.is_load_u8
+            + local.opcode_flags.is_load_s8
+            + local.opcode_flags.is_store
+            + local.opcode_flags.is_store_u8
+            + local.opcode_flags.is_beq
+            + local.opcode_flags.is_bne
+            + local.opcode_flags.is_jal
+            + local.opcode_flags.is_jalv
+            + local.opcode_flags.is_imm32
+            + local.opcode_flags.is_advice
+            + local.opcode_flags.is_stop
+            + local.opcode_flags.is_loadfp
+            + local.opcode_flags.is_write;
+
         // "Stop" constraints (to check that program execution was not stopped prematurely)
         builder.assert_bool(local.opcode_flags.is_stop);
+        builder
+            .when(local.opcode_flags.is_stop)
+            .assert_zero(sum_opcode_flags - local.opcode_flags.is_stop); // All other opcode flags are zero
         builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
