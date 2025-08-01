@@ -77,7 +77,7 @@ where
         );
 
         // "Stop" constraints (to check that program execution was not stopped prematurely)
-
+        builder.assert_bool(local.opcode_flags.is_stop);
         builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
@@ -120,6 +120,23 @@ impl CpuChip {
         let is_bus_op = local.opcode_flags.is_bus_op;
         let is_pointer_op = local.opcode_flags.is_pointer_op;
         let is_write = local.opcode_flags.is_write;
+
+        builder.assert_bool(is_load);
+        builder.assert_bool(is_load_u8);
+        builder.assert_bool(is_load_s8);
+        builder.assert_bool(is_store_u8);
+        builder.assert_bool(is_store);
+        builder.assert_bool(is_jal);
+        builder.assert_bool(is_jalv);
+        builder.assert_bool(is_beq);
+        builder.assert_bool(is_bne);
+        builder.assert_bool(is_imm32);
+        builder.assert_bool(is_loadfp);
+        builder.assert_bool(is_imm_op);
+        builder.assert_bool(is_left_imm_op);
+        builder.assert_bool(is_bus_op);
+        builder.assert_bool(is_pointer_op);
+        builder.assert_bool(is_write);
 
         let addr_a = local.fp + local.instruction.operands.a();
         let addr_b = local.fp + local.instruction.operands.b();
