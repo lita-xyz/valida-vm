@@ -76,10 +76,31 @@ where
             reduce::<AB>(&base, local.read_value_1()),
         );
 
+        // Ensure that all operation selector flags are boolean values.
+        builder.assert_bool(local.opcode_flags.is_bus_op);
+        builder.assert_bool(local.opcode_flags.is_pointer_op);
+        builder.assert_bool(local.opcode_flags.is_load);
+        builder.assert_bool(local.opcode_flags.is_load_u8);
+        builder.assert_bool(local.opcode_flags.is_load_s8);
+        builder.assert_bool(local.opcode_flags.is_store);
+        builder.assert_bool(local.opcode_flags.is_store_u8);
+        builder.assert_bool(local.opcode_flags.is_beq);
+        builder.assert_bool(local.opcode_flags.is_bne);
+        builder.assert_bool(local.opcode_flags.is_jal);
+        builder.assert_bool(local.opcode_flags.is_jalv);
+        builder.assert_bool(local.opcode_flags.is_imm32);
+        builder.assert_bool(local.opcode_flags.is_advice);
+        builder.assert_bool(local.opcode_flags.is_stop);
+        builder.assert_bool(local.opcode_flags.is_loadfp);
+        builder.assert_bool(local.opcode_flags.is_write);
+
+        // Ensure that all immediate operand selector flags are boolean values.
+        builder.assert_bool(local.opcode_flags.is_imm_op);
+        builder.assert_bool(local.opcode_flags.is_left_imm_op);
+
+        // Enforce that at most one operation selector is active (i.e., set to 1) per row.
         let sum_opcode_flags = local.opcode_flags.is_bus_op
             + local.opcode_flags.is_pointer_op
-            + local.opcode_flags.is_imm_op
-            + local.opcode_flags.is_left_imm_op
             + local.opcode_flags.is_load
             + local.opcode_flags.is_load_u8
             + local.opcode_flags.is_load_s8
@@ -94,12 +115,9 @@ where
             + local.opcode_flags.is_stop
             + local.opcode_flags.is_loadfp
             + local.opcode_flags.is_write;
+        builder.assert_bool(sum_opcode_flags);
 
         // "Stop" constraints (to check that program execution was not stopped prematurely)
-        builder.assert_bool(local.opcode_flags.is_stop);
-        builder
-            .when(local.opcode_flags.is_stop)
-            .assert_zero(sum_opcode_flags - local.opcode_flags.is_stop); // All other opcode flags are zero
         builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
@@ -142,23 +160,6 @@ impl CpuChip {
         let is_bus_op = local.opcode_flags.is_bus_op;
         let is_pointer_op = local.opcode_flags.is_pointer_op;
         let is_write = local.opcode_flags.is_write;
-
-        builder.assert_bool(is_load);
-        builder.assert_bool(is_load_u8);
-        builder.assert_bool(is_load_s8);
-        builder.assert_bool(is_store_u8);
-        builder.assert_bool(is_store);
-        builder.assert_bool(is_jal);
-        builder.assert_bool(is_jalv);
-        builder.assert_bool(is_beq);
-        builder.assert_bool(is_bne);
-        builder.assert_bool(is_imm32);
-        builder.assert_bool(is_loadfp);
-        builder.assert_bool(is_imm_op);
-        builder.assert_bool(is_left_imm_op);
-        builder.assert_bool(is_bus_op);
-        builder.assert_bool(is_pointer_op);
-        builder.assert_bool(is_write);
 
         let addr_a = local.fp + local.instruction.operands.a();
         let addr_b = local.fp + local.instruction.operands.b();
