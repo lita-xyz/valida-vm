@@ -845,7 +845,7 @@ fn multi_segment_prove_program(
     // program, so this is customized for each program/test.
     machine.set_max_trace_height(max_trace_height);
     let rom = ProgramROM::new(program);
-    machine.set_program_rom(rom, program_table_type);
+    machine.set_program_rom(0, rom, program_table_type);
     machine.set_initial_register_values(valida_cpu::Registers { pc: 0, fp: 0x1000 });
 
     let mut runtime = ValidaRuntime::default_for_field::<BabyBear>();
@@ -885,7 +885,7 @@ fn prove_program(
     machine.set_segment_number(0);
     machine.set_max_trace_height(65536);
     let rom = ProgramROM::new(program);
-    machine.set_program_rom(rom, program_table_type);
+    machine.set_program_rom(0, rom, program_table_type);
     machine.set_initial_register_values(valida_cpu::Registers { pc: 0, fp: 0x1000 });
 
     let mut runtime = ValidaRuntime::default_for_field::<BabyBear>();

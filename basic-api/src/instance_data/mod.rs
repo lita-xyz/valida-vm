@@ -39,7 +39,7 @@ impl<F: PrimeField32> MachineInstanceData<F> for ValidaInstanceData {
                 debug_assert!(segment_public_traces.is_empty());
                 // program ROM chip
                 segment_public_traces[1] = self.rom.as_ref().map(|rom| {
-                    let (trace, log) = rom_to_table(rom, verbose[1]);
+                    let (trace, log) = rom_to_table(self.pc_init as usize, rom, verbose[1]);
                     if let Some(log) = log {
                         println!("Public trace for ROM chip:");
                         for line in log {
@@ -156,7 +156,7 @@ impl<F: PrimeField32> MachineInstanceData<F> for ValidaSegmentInstanceData {
                     }
                     // program chip
                     1 => self.rom.as_ref().map(|rom| {
-                        let (trace, log) = rom_to_table(rom, verbose[1]);
+                        let (trace, log) = rom_to_table(self.pc_init as usize, rom, verbose[1]);
                         if let Some(log) = log {
                             println!("Public trace for ROM chip:");
                             for line in log {

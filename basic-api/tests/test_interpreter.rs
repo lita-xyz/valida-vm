@@ -16,7 +16,7 @@ fn run_program(asm_path: &str, advice: AdviceProvider) -> Vec<u8> {
     machine.set_max_trace_height(65536);
     let asm = read_to_string(asm_path).expect("Failed to read asm");
     let rom = ProgramROM::from_machine_code(&assemble(&asm).unwrap());
-    machine.set_program_rom(rom, valida_program::ProgramTableType::Public);
+    machine.set_program_rom(0, rom, valida_program::ProgramTableType::Public);
     let fp_init = 16777216; // default stack height
     machine.set_initial_register_values(valida_cpu::Registers { pc: 0, fp: fp_init });
 

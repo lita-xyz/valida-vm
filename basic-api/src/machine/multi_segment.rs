@@ -508,7 +508,11 @@ impl<F: StarkField> Machine<F> for MultiSegmentBasicMachine<F> {
 
     fn init(&mut self, boot_data: Self::BootData) {
         self.program_file = boot_data.program_file;
-        self.set_program_rom(boot_data.program_rom, boot_data.program_table_type);
+        self.set_program_rom(
+            boot_data.initial_register_values.pc,
+            boot_data.program_rom,
+            boot_data.program_table_type,
+        );
         self.set_initial_register_values(boot_data.initial_register_values);
         self.set_max_trace_height(boot_data.max_trace_height);
         // store static data in multi segment machine until we run it
@@ -1276,8 +1280,17 @@ impl<F: StarkField> MachineWithProgramROM<F> for MultiSegmentBasicMachine<F> {
         &self.program_table.rom
     }
 
-    fn set_program_rom(&mut self, rom: ProgramROM<i32>, table_type: ProgramTableType) {
-        self.program_table = ProgramTable { table_type, rom };
+    fn set_program_rom(
+        &mut self,
+        init_pc: u32,
+        rom: ProgramROM<i32>,
+        table_type: ProgramTableType,
+    ) {
+        self.program_table = ProgramTable {
+            init_pc,
+            table_type,
+            rom,
+        };
     }
 
     fn program_table_type(&self) -> ProgramTableType {

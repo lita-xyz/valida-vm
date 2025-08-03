@@ -17,7 +17,7 @@ use valida_cpu::{MachineWithRegisters, StopInstruction};
 use valida_keccak::KeccakFInstruction;
 use valida_machine::{
     Instruction, InstructionWord, Machine, MachineProof, Operands, ProgramROM, ProverOptions,
-    StarkConfigImpl,
+    StarkConfigImpl, StarkField,
 };
 use valida_program::{MachineWithProgramROM, ProgramTableType};
 
@@ -27,7 +27,7 @@ fn prove_program(
 ) -> BasicMachine<BabyBear> {
     let mut machine = BasicMachine::<Val>::default();
     let rom = ProgramROM::new(program);
-    machine.set_program_rom(rom, program_table_type);
+    machine.set_program_rom(0, rom, program_table_type);
     // Set max trace height to the default on the command line: 2**27.
     machine.set_max_trace_height(2 * 2u32.pow(27));
     machine.set_initial_register_values(valida_cpu::Registers { pc: 0, fp: 0x1000 });

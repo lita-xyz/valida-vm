@@ -729,7 +729,11 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         // and set the segment number in the ephemeral memory chip
         self.mem.segment_number = boot_data.segment_number as usize;
         self.set_max_trace_height(boot_data.max_trace_height);
-        self.set_program_rom(boot_data.program_rom, boot_data.program_table_type);
+        self.set_program_rom(
+            boot_data.initial_register_values.pc,
+            boot_data.program_rom,
+            boot_data.program_table_type,
+        );
         self.set_initial_register_values(boot_data.initial_register_values);
         let static_data_chip_type = match boot_data.program_table_type {
             ProgramTableType::Public => StaticDataChipType::Public,
@@ -1571,8 +1575,17 @@ where
         &self.program().table.0.rom
     }
 
-    fn set_program_rom(&mut self, rom: ProgramROM<i32>, table_type: ProgramTableType) {
-        let table = ProgramTable { table_type, rom };
+    fn set_program_rom(
+        &mut self,
+        init_pc: u32,
+        rom: ProgramROM<i32>,
+        table_type: ProgramTableType,
+    ) {
+        let table = ProgramTable {
+            init_pc,
+            table_type,
+            rom,
+        };
         self.program_mut().set_table(MultiLookupTableWrapper(table));
     }
 

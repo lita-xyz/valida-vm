@@ -115,7 +115,7 @@ pub fn prepare_basic_machine(
     let mut machine = BasicMachine::<BabyBear>::default();
     machine.set_segment_number(0); // single machine == segment number 0
     machine.set_max_trace_height(max_trace_height);
-    machine.set_program_rom(code, program_table_type);
+    machine.set_program_rom(initial_register_values.pc, code, program_table_type);
     machine.set_initial_register_values(initial_register_values);
     machine.static_data_mut().load(data, static_data_chip_type);
 

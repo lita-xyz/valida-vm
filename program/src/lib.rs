@@ -175,6 +175,7 @@ fn instruction_to_row<F: PrimeField32>(
 }
 
 pub fn rom_to_table<F: PrimeField32>(
+    init_pc: usize,
     rom: &ProgramROM<i32>,
     verbose: bool,
 ) -> (RowMajorMatrix<F>, Option<Vec<String>>) {
@@ -184,7 +185,7 @@ pub fn rom_to_table<F: PrimeField32>(
         .0
         .par_iter()
         .enumerate()
-        .map(instruction_to_row)
+        .map(|(i, instr)| instruction_to_row((i + init_pc, instr)))
         .flat_map(|row| row.to_vec())
         .collect::<Vec<_>>();
 
@@ -219,6 +220,7 @@ impl MemoryFootprint for ProgramTableType {
 
 #[derive(Default, Clone)]
 pub struct ProgramTable {
+    pub init_pc: u32,
     pub table_type: ProgramTableType,
     pub rom: ProgramROM<i32>,
 }
@@ -247,7 +249,7 @@ impl<F: PrimeField32> LookupTable<F> for ProgramTable {
     }
 
     fn lookup_matrix(&self, verbose: bool) -> (RowMajorMatrix<F>, Option<Vec<String>>) {
-        rom_to_table(&self.rom, verbose)
+        rom_to_table(self.init_pc as usize, &self.rom, verbose)
     }
 
     fn width(&self) -> usize {
@@ -263,7 +265,7 @@ pub type ProgramChip<F> = LookupChip<MultiLookupTableWrapper<ProgramTable>, F>;
 
 pub trait MachineWithProgramROM<F: Field>: Machine<F> {
     fn program_rom(&self) -> &ProgramROM<i32>;
-    fn set_program_rom(&mut self, rom: ProgramROM<i32>, table_type: ProgramTableType);
+    fn set_program_rom(&mut self, pc_init: u32, rom: ProgramROM<i32>, table_type: ProgramTableType);
 
     fn program_table_type(&self) -> ProgramTableType;
 }
