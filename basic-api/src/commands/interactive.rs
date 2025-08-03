@@ -9,7 +9,7 @@ use crate::{
     ValidaSegmentBootData,
 };
 
-use valida_cpu::{MachineWithCpuChip, Registers};
+use valida_cpu::{MachineWithCpuChip, MachineWithRegisters, Registers};
 use valida_machine::{
     AdviceProvider, AdviceProviderWithDefault, Machine, MemoryBackendTrait, RunningMachine,
     StoppingFlag, StorageBackendTrait, StorageBackendType, ValidaMemoryBackend,
@@ -93,7 +93,11 @@ impl<'a> Context<'a> {
         let reg = self.state_.machine.get_registers().expect("Unexpectedly found no segments in MultiSegmentBasicMachine during interactive execution.");
         let (pc, fp) = (reg.pc, reg.fp);
 
-        let instruction = self.state_.machine.program_rom().get_instruction(pc);
+        let instruction = self
+            .state_
+            .machine
+            .program_rom()
+            .get_instruction(pc, self.state_.machine.initial_register_values().pc);
         println!("{:4} : {:?}", pc, instruction.to_string());
 
         // check if fp is changed
@@ -179,6 +183,8 @@ pub fn last_frame(context: &mut Context) -> String {
 }
 
 pub fn list_instrs(print_size_arg: Option<&String>, context: &mut Context) -> String {
+    let init_reg = context.state_.machine.initial_register_values();
+    let init_pc = init_reg.pc;
     let reg = context.state_.machine.get_registers().expect(
         "Unexpectedly found no segments in MultiSegmentBasicMachine during interactive execution.",
     );
@@ -198,7 +204,7 @@ pub fn list_instrs(print_size_arg: Option<&String>, context: &mut Context) -> St
         if cur_pc >= total_size as u32 {
             break;
         }
-        let instruction = program_rom.get_instruction(cur_pc);
+        let instruction = program_rom.get_instruction(cur_pc, init_pc);
         formatted.push_str(format!("{:4} : {:?}\n", cur_pc, instruction.to_string()).as_str());
     }
     formatted

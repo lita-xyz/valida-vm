@@ -273,7 +273,7 @@ pub trait MachineWithProgramChip<F: PrimeField32>: Machine<F> + MachineWithProgr
 
     fn program_mut(&mut self) -> &mut ProgramChip<F>;
 
-    fn read_word(&mut self, index: u32, log: bool);
+    fn read_word(&mut self, index: u32, offset: u32, log: bool);
 }
 
 impl<F, M> MachineWithProgramChip<F> for M
@@ -288,9 +288,9 @@ where
         self.lookup_chip_mut()
     }
 
-    fn read_word(&mut self, index: u32, log: bool) {
+    fn read_word(&mut self, index: u32, offset: u32, log: bool) {
         if log {
-            let instruction = self.program().table.0.rom.get_instruction(index);
+            let instruction = self.program().table.0.rom.get_instruction(index, offset);
             self.vector_lookup(instruction_to_row((index as usize, instruction)), log);
         }
     }

@@ -770,7 +770,10 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         let mut step_did_stop = StoppingFlag::DidNotStop;
         loop {
             let pc = state.machine.cpu().pc;
-            let instruction = *state.machine.program_rom().get_instruction(pc);
+            let instruction = *state
+                .machine
+                .program_rom()
+                .get_instruction(pc, state.machine.initial_register_values().pc);
 
             metrics.register_instruction(&instruction, state);
 
@@ -1417,7 +1420,10 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
     fn step(state: &mut RunningMachine<'_, F, Self>) -> StoppingFlag {
         // Fetch
         let pc = state.machine.cpu().pc;
-        let instruction = state.machine.program_rom().get_instruction(pc);
+        let instruction = state
+            .machine
+            .program_rom()
+            .get_instruction(pc, state.machine.initial_register_values().pc);
         let opcode = instruction.opcode;
         let ops = instruction.operands;
 
@@ -1540,7 +1546,9 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
             _ => panic!("Unrecognized opcode: {}, pc = {}", opcode, pc),
         };
         let log = state.machine.log_enabled();
-        state.machine.read_word(pc, log);
+        state
+            .machine
+            .read_word(pc, state.machine.initial_register_values().pc, log);
 
         // A STOP instruction signals the end of the program
         if opcode == <StopInstruction as Instruction<Self, F>>::OPCODE {

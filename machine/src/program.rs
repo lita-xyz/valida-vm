@@ -261,9 +261,9 @@ impl<F> ProgramROM<F> {
         Self(instructions)
     }
 
-    pub fn get_instruction(&self, pc: u32) -> &InstructionWord<F> {
+    pub fn get_instruction(&self, pc: u32, offset: u32) -> &InstructionWord<F> {
         debug_assert!(pc < self.0.len() as u32, "PC out of bounds");
-        &self.0[pc as usize]
+        &self.0[(pc - offset) as usize]
     }
 }
 
