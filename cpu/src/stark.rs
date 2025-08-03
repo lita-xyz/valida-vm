@@ -297,7 +297,7 @@ impl CpuChip {
         builder: &mut AB,
         local: &CpuCols<AB::Var>,
         next: &CpuCols<AB::Var>,
-        _public: &CpuPublicVector<AB::Var>,
+        public: &CpuPublicVector<AB::Var>,
         base: &Word<AB::Expr>,
     ) where
         AB: AirBuilder,
@@ -305,10 +305,7 @@ impl CpuChip {
         AB::Expr: Debug,
         AB::Var: Debug,
     {
-        // TODO: Support `builder.when_first_row().assert_eq(local.pc, public.pc_init);`
-        // Currently, the generated trace may become unexpectedly malformed when the initial `pc` is non-zero.
-        // See https://github.com/lita-xyz/valida-vm/issues/9 for details.
-        builder.when_first_row().assert_zero(local.pc);
+        builder.when_first_row().assert_eq(local.pc, public.pc_init);
 
         let bytes_per_instr_expr = AB::Expr::from_canonical_u32(BYTES_PER_INSTR);
         let should_not_increment_pc = local.opcode_flags.is_jal
