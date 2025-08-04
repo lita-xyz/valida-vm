@@ -878,6 +878,7 @@ fn multi_segment_prove_program(
 }
 
 fn prove_program(
+    init_pc: u32,
     program: Vec<InstructionWord<i32>>,
     program_table_type: ProgramTableType,
 ) -> (BasicMachine<BabyBear>, ValidaMemoryBackend) {
@@ -885,8 +886,11 @@ fn prove_program(
     machine.set_segment_number(0);
     machine.set_max_trace_height(65536);
     let rom = ProgramROM::new(program);
-    machine.set_program_rom(0, rom, program_table_type);
-    machine.set_initial_register_values(valida_cpu::Registers { pc: 0, fp: 0x1000 });
+    machine.set_program_rom(init_pc, rom, program_table_type);
+    machine.set_initial_register_values(valida_cpu::Registers {
+        pc: init_pc,
+        fp: 0x1000,
+    });
 
     let mut runtime = ValidaRuntime::default_for_field::<BabyBear>();
     let mut state = machine.start(&mut runtime);
@@ -960,7 +964,7 @@ fn expected_div_memory_state(memory_backend: &ValidaMemoryBackend) {
 #[test]
 fn prove_div() {
     let program = div_program::<BabyBear>();
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
     expected_div_memory_state(&memory_backend);
 }
 
@@ -1046,7 +1050,14 @@ fn expected_sdiv_memory_state(memory_backend: &ValidaMemoryBackend) {
 #[test]
 fn prove_sdiv() {
     let program = sdiv_program::<BabyBear>();
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
+    expected_sdiv_memory_state(&memory_backend);
+}
+
+#[test]
+fn prove_sdiv_with_nonzero_initial_pc() {
+    let program = sdiv_program::<BabyBear>();
+    let (_machine, memory_backend) = prove_program(1234, program, ProgramTableType::Public);
     expected_sdiv_memory_state(&memory_backend);
 }
 
@@ -1102,7 +1113,7 @@ fn prove_multi_segment_single_byte_instrs() {
 #[test]
 fn prove_single_byte_instrs() {
     let program = single_byte_program::<BabyBear>();
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
     expected_single_byte_memory_state(&memory_backend);
 }
 
@@ -1117,7 +1128,7 @@ fn expected_fibonacci_memory_state(memory_backend: &ValidaMemoryBackend) {
 fn prove_fibonacci() {
     let program = fib_program::<BabyBear>();
 
-    let (machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     assert_eq!(machine.cpu().clock, 192);
     assert_eq!(machine.cpu().operations.len(), 192);
@@ -1130,7 +1141,7 @@ fn prove_fibonacci() {
 fn prove_fibonacci_circuit_specific() {
     let program = fib_program::<BabyBear>();
 
-    let (machine, memory_backend) = prove_program(program, ProgramTableType::Preprocessed);
+    let (machine, memory_backend) = prove_program(0, program, ProgramTableType::Preprocessed);
 
     assert_eq!(machine.cpu().clock, 192);
     assert_eq!(machine.cpu().operations.len(), 192);
@@ -1171,7 +1182,7 @@ fn expected_add_with_overflow_memory_state(memory_backend: &ValidaMemoryBackend)
 fn prove_add_with_overflow() {
     let program = add_with_overflow_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     expected_add_with_overflow_memory_state(&memory_backend);
 }
@@ -1203,7 +1214,7 @@ fn expected_sub_with_overflow_memory_state(memory_backend: &ValidaMemoryBackend)
 fn prove_sub_with_overflow() {
     let program = sub_with_overflow_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     expected_sub_with_overflow_memory_state(&memory_backend);
 }
@@ -1235,7 +1246,7 @@ fn expected_sub_with_borrow_propagation_memory_state(memory_backend: &ValidaMemo
 fn prove_sub_with_borrow_propagation() {
     let program = sub_with_borrow_propagation_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     expected_sub_with_borrow_propagation_memory_state(&memory_backend);
 }
@@ -1260,7 +1271,7 @@ fn prove_multi_segment_sub_with_borrow_propagation() {
 fn prove_output() {
     let program = output_program::<BabyBear>();
 
-    let (machine, _memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (machine, _memory_backend) = prove_program(0, program, ProgramTableType::Public);
     let clks = &machine.output().clks_log;
     let tape = machine.output_tape();
     assert_eq!(
@@ -1336,7 +1347,7 @@ fn left_imm_ops_expected_memory_state(memory_backend: &ValidaMemoryBackend) {
 fn prove_left_imm_ops() {
     let program = left_imm_ops_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     left_imm_ops_expected_memory_state(&memory_backend);
 }
@@ -1432,7 +1443,7 @@ fn signed_inequality_expected_memory_state(memory_backend: &ValidaMemoryBackend)
 fn prove_signed_inequality() {
     let program = signed_inequality_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     signed_inequality_expected_memory_state(&memory_backend);
 }
@@ -1469,7 +1480,7 @@ fn loadfp_expected_memory_state(memory_backend: &ValidaMemoryBackend) {
 fn prove_loadfp() {
     let program = loadfp_program::<BabyBear>();
 
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     loadfp_expected_memory_state(&memory_backend);
 }
@@ -1529,7 +1540,7 @@ fn prove_keccak() {
     let postimage = convert_array(state);
 
     let program = keccak_program::<BabyBear>();
-    let (_machine, memory_backend) = prove_program(program, ProgramTableType::Public);
+    let (_machine, memory_backend) = prove_program(0, program, ProgramTableType::Public);
 
     // CHECK POSTIMAGE
     for i in 0..50 {
