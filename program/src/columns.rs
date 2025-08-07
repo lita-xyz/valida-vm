@@ -12,6 +12,7 @@ use valida_util::indices_arr;
 pub struct ProgramCols<T> {
     pub pc: T,
     pub opcode: T,
+    pub operation_code: T,
     pub operands: Operands<T>,
     pub imm: Word<T>,
 }
@@ -21,8 +22,8 @@ impl<F: PrimeField32> Display for ProgramCols<F> {
         let opcode_enum = Opcode::try_from(self.opcode.as_canonical_u32()).expect("Invalid opcode");
         write!(
             f,
-            "ProgramCols {{ pc: {}, opcode: {:?}, operands: {:?}, imm: {:?} }}",
-            self.pc, opcode_enum, self.operands, self.imm
+            "ProgramCols {{ pc: {}, opcode: {:?}, operation?code: {:?}, operands: {:?}, imm: {:?} }}",
+            self.pc, opcode_enum, self.operation_code, self.operands, self.imm
         )
     }
 }

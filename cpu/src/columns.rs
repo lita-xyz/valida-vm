@@ -65,6 +65,7 @@ pub struct InstructionCols<T> {
 
 #[derive(Default, Debug)]
 pub struct OpcodeFlagCols<T> {
+    pub operation_code: T,
     pub is_bus_op: T,
     pub is_pointer_op: T,
     pub is_imm_op: T,

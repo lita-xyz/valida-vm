@@ -49,5 +49,5 @@ pub const MEMORY_CELL_BYTES: usize = 4;
 pub const LOOKUP_DEGREE_BOUND: usize = 3;
 // THIS VALUE HAS TO BE AT LEAST program::columns::NUM_PROGRAM_COLS
 // OTHERWISE VALIDA IS VERY SLOW
-pub const SMALLVEC_SIZE: usize = 11;
+pub const SMALLVEC_SIZE: usize = 12;
 pub const NUM_CHIPS: usize = 15;
