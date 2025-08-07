@@ -1,6 +1,7 @@
 #![feature(trait_upcasting)]
 use core::marker::PhantomData;
 
+use std::borrow::BorrowMut;
 use std::fs::File;
 use std::io::Write;
 use std::ops::RangeInclusive;
@@ -41,6 +42,7 @@ use valida_bus::{
     MachineWithRangeBus8,
 };
 use valida_bytes::{BytesChip, BytesTable, MachineWithBytesChip, MachineWithRangeCheckeru8};
+use valida_cpu::columns::CpuCols;
 use valida_cpu::{
     BeqInstruction, BneInstruction, CpuChip, FailInstruction, Imm32Instruction, JalInstruction,
     JalvInstruction, Load32Instruction, LoadFpInstruction, LoadS8Instruction, LoadU8Instruction,
@@ -74,8 +76,10 @@ use valida_memory::{
 };
 use valida_opcodes::BYTES_PER_INSTR;
 use valida_output::{MachineWithOutputChip, OutputChip, WriteInstruction};
+use valida_program::columns::{ProgramCols, NUM_PROGRAM_COLS};
 use valida_program::{
-    MachineWithProgramChip, MachineWithProgramROM, ProgramChip, ProgramTable, ProgramTableType,
+    opcode_to_cpuoperation_code, MachineWithProgramChip, MachineWithProgramROM, ProgramChip,
+    ProgramTable, ProgramTableType,
 };
 use valida_range::{MachineWithRangeChip, RangeCheckerChip, RangeTable};
 use valida_static_data::{MachineWithStaticDataChip, StaticDataChip, StaticDataChipType};
@@ -1354,11 +1358,25 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         let g_subgroups = compute_g_subgroups::<F, SC>(&proof.chip_proofs);
 
         // Generate public traces
-        let public_traces: [Option<PublicTrace<SC::Val>>; NUM_CHIPS] = instance_data
+        let mut public_traces: [Option<PublicTrace<SC::Val>>; NUM_CHIPS] = instance_data
             .public_traces(show_public)[0]
             .clone()
             .try_into()
             .unwrap();
+
+        if let Some(PublicTrace::PublicMatrix(program_trace)) = public_traces[1].as_mut() {
+            for i in 0..program_trace.height() {
+                let program_row = program_trace.row_mut(i);
+                let program_row: &mut ProgramCols<SC::Val> = program_row.borrow_mut();
+                if (program_row.operation_code
+                    != SC::Val::from_canonical_u32(opcode_to_cpuoperation_code(
+                        program_row.opcode.as_canonical_u32(),
+                    )))
+                {
+                    panic!("Invalid operation code at position {}", i);
+                }
+            }
+        }
 
         // Commit to the public trace to get the public commitment
         let (public_commit, _) =
