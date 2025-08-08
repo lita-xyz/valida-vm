@@ -76,7 +76,6 @@ use valida_memory::{
 };
 use valida_opcodes::BYTES_PER_INSTR;
 use valida_output::{MachineWithOutputChip, OutputChip, WriteInstruction};
-use valida_program::columns::{ProgramCols, NUM_PROGRAM_COLS};
 use valida_program::{
     MachineWithProgramChip, MachineWithProgramROM, ProgramChip, ProgramTable, ProgramTableType,
 };
@@ -1357,18 +1356,11 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         let g_subgroups = compute_g_subgroups::<F, SC>(&proof.chip_proofs);
 
         // Generate public traces
-        let mut public_traces: [Option<PublicTrace<SC::Val>>; NUM_CHIPS] = instance_data
+        let public_traces: [Option<PublicTrace<SC::Val>>; NUM_CHIPS] = instance_data
             .public_traces(show_public)[0]
             .clone()
             .try_into()
             .unwrap();
-
-        if let Some(PublicTrace::PublicMatrix(program_trace)) = public_traces[1].as_mut() {
-            for i in 0..program_trace.height() {
-                let program_row = program_trace.row_mut(i);
-                let program_row: &mut ProgramCols<SC::Val> = program_row.borrow_mut();
-            }
-        }
 
         // Commit to the public trace to get the public commitment
         let (public_commit, _) =

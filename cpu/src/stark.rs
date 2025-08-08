@@ -82,9 +82,10 @@ where
                 + local.instruction.opcode_hi16 * AB::Expr::from_canonical_u32(16),
         );
 
-        //builder
-        //    .when_ne(local.instruction.opcode_lo16, AB::Expr::one())
-        //    .assert_one(local.opcode_flags.is_bus_op);
+        builder
+            .when(local.is_real)
+            .when_ne(local.instruction.opcode_lo16, AB::Expr::one())
+            .assert_one(local.opcode_flags.is_bus_op);
 
         builder
             .when_ne(local.opcode_flags.is_bus_op, AB::Expr::one())
