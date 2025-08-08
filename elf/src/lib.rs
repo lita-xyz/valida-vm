@@ -142,7 +142,7 @@ pub fn load_elf_object_file(file: &Vec<u8>, should_convert_opcode: bool) -> Prog
     let data = load_data(&file, &loadable_segments);
 
     Program {
-        code: ProgramROM::from_machine_code(code, should_convert_opcode),
+        code: ProgramROM::from_machine_code(code),
         data,
         initial_program_counter: 0,
     }

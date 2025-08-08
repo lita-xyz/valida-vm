@@ -7,7 +7,7 @@ use valida_machine::{Word, MEMORY_CELL_BYTES};
 use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
 use p3_field::{AbstractField, PrimeField};
 use p3_matrix::MatrixRowSlices;
-use valida_opcodes::{Opcode, BYTES_PER_INSTR};
+use valida_opcodes::{convert_opcode, Opcode, BYTES_PER_INSTR};
 
 impl<F> BaseAir<F> for CpuChip {
     fn width(&self) -> usize {
@@ -92,35 +92,37 @@ where
             .assert_eq(
                 local.instruction.opcode,
                 local.opcode_flags.is_pointer_op
-                    * (AB::Expr::from_canonical_u32(Opcode::KECCAKF as u32))
+                    * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::KECCAKF as u32)))
                     + local.opcode_flags.is_load
-                        * (AB::Expr::from_canonical_u32(Opcode::LOAD32 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::LOAD32 as u32)))
                     + local.opcode_flags.is_load_u8
-                        * (AB::Expr::from_canonical_u32(Opcode::LOADU8 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::LOADU8 as u32)))
                     + local.opcode_flags.is_load_s8
-                        * (AB::Expr::from_canonical_u32(Opcode::LOADS8 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::LOADS8 as u32)))
                     + local.opcode_flags.is_store
-                        * (AB::Expr::from_canonical_u32(Opcode::STORE32 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::STORE32 as u32)))
                     + local.opcode_flags.is_store_u8
-                        * (AB::Expr::from_canonical_u32(Opcode::STOREU8 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::STOREU8 as u32)))
                     + local.opcode_flags.is_beq
-                        * (AB::Expr::from_canonical_u32(Opcode::BEQ as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::BEQ as u32)))
                     + local.opcode_flags.is_bne
-                        * (AB::Expr::from_canonical_u32(Opcode::BNE as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::BNE as u32)))
                     + local.opcode_flags.is_jal
-                        * (AB::Expr::from_canonical_u32(Opcode::JAL as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::JAL as u32)))
                     + local.opcode_flags.is_jalv
-                        * (AB::Expr::from_canonical_u32(Opcode::JALV as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::JALV as u32)))
                     + local.opcode_flags.is_imm32
-                        * (AB::Expr::from_canonical_u32(Opcode::IMM32 as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::IMM32 as u32)))
                     + local.opcode_flags.is_advice
-                        * (AB::Expr::from_canonical_u32(Opcode::READ_ADVICE as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(
+                            Opcode::READ_ADVICE as u32,
+                        )))
                     + local.opcode_flags.is_stop
-                        * (AB::Expr::from_canonical_u32(Opcode::STOP as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::STOP as u32)))
                     + local.opcode_flags.is_loadfp
-                        * (AB::Expr::from_canonical_u32(Opcode::LOADFP as u32))
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::LOADFP as u32)))
                     + local.opcode_flags.is_write
-                        * (AB::Expr::from_canonical_u32(Opcode::WRITE as u32)),
+                        * (AB::Expr::from_canonical_u32(convert_opcode(Opcode::WRITE as u32))),
             );
 
         let sum_opcode_flags = local.opcode_flags.is_bus_op

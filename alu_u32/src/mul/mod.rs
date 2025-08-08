@@ -26,7 +26,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Mulhs,
     Mulhu, Operands, PublicTrace, RunningMachine, Word,
 };
-use valida_opcodes::{MUL32, MULHS32, MULHU32};
+use valida_opcodes::{convert_opcode, MUL32, MULHS32, MULHU32};
 
 use core::{borrow::BorrowMut, iter::Sum, ops::Mul};
 use p3_air::VirtualPairCol;
@@ -349,9 +349,18 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (MUL_COL_MAP.is_mul, SC::Val::from_canonical_u32(MUL32)),
-                (MUL_COL_MAP.is_mulhs, SC::Val::from_canonical_u32(MULHS32)),
-                (MUL_COL_MAP.is_mulhu, SC::Val::from_canonical_u32(MULHU32)),
+                (
+                    MUL_COL_MAP.is_mul,
+                    SC::Val::from_canonical_u32(convert_opcode(MUL32)),
+                ),
+                (
+                    MUL_COL_MAP.is_mulhs,
+                    SC::Val::from_canonical_u32(convert_opcode(MULHS32)),
+                ),
+                (
+                    MUL_COL_MAP.is_mulhu,
+                    SC::Val::from_canonical_u32(convert_opcode(MULHU32)),
+                ),
             ],
             SC::Val::zero(),
         );

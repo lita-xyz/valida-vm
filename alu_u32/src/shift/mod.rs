@@ -21,7 +21,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Operands,
     PublicTrace, RunningMachine, Sra, Word, MEMORY_CELL_BYTES,
 };
-use valida_opcodes::{SHL32, SHR32, SRA32};
+use valida_opcodes::{convert_opcode, SHL32, SHR32, SRA32};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField, PrimeField32};
@@ -230,9 +230,18 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (COL_MAP.is_shl, SC::Val::from_canonical_u32(SHL32)),
-                (COL_MAP.is_shr, SC::Val::from_canonical_u32(SHR32)),
-                (COL_MAP.is_sra, SC::Val::from_canonical_u32(SRA32)),
+                (
+                    COL_MAP.is_shl,
+                    SC::Val::from_canonical_u32(convert_opcode(SHL32)),
+                ),
+                (
+                    COL_MAP.is_shr,
+                    SC::Val::from_canonical_u32(convert_opcode(SHR32)),
+                ),
+                (
+                    COL_MAP.is_sra,
+                    SC::Val::from_canonical_u32(convert_opcode(SRA32)),
+                ),
             ],
             SC::Val::zero(),
         );

@@ -5,29 +5,23 @@ pub const BYTES_PER_INSTR: u32 = 24; // 4 bytes per word * 6 words per instructi
 #[repr(u32)]
 #[derive(Debug, TryFromPrimitive, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Opcode {
-    // Opcodes that set any opcode_flags other than is_bus_op of the cpu chip
-    // to 1 have their first digit in hexadecimal equal to 1
     LOAD32 = 1,
-    STORE32 = 17,
-    JAL = 33,
-    JALV = 49,
-    BEQ = 65,
-    BNE = 81,
-    IMM32 = 97,
-    STOP = 113,
+    STORE32 = 2,
+    JAL = 3,
+    JALV = 4,
+    BEQ = 5,
+    BNE = 6,
+    IMM32 = 7,
+    STOP = 8,
     #[allow(non_camel_case_types)]
-    READ_ADVICE = 129,
-    LOADFP = 145,
-    LOADU8 = 161,
-    LOADS8 = 177,
-    STOREU8 = 193,
+    READ_ADVICE = 9,
+    LOADFP = 10,
+    LOADU8 = 11,
+    LOADS8 = 12,
+    STOREU8 = 13,
     FAIL = 16,
-    MEMCPY = 209,
+    MEMCPY = 20,
 
-    WRITE = 225,
-
-    // is_bus_op of the cpu chip is set to 1 if and only if the first digit in the base-16
-    // representation of the opcode is NOT 1.
     ADD32 = 100,
     SUB32 = 101,
     MUL32 = 102,
@@ -41,26 +35,105 @@ pub enum Opcode {
     XOR32 = 109,
     NE32 = 111,
     MULHU32 = 112,
-    SRA32 = 114,
-    MULHS32 = 115,
-    LTE32 = 116,
-    EQ32 = 117,
-    SLT32 = 118,
-    SLE32 = 119,
+    SRA32 = 113,
+    MULHS32 = 114,
+    LTE32 = 115,
+    EQ32 = 116,
+    SLT32 = 117,
+    SLE32 = 118,
     ADD = 200,
     SUB = 201,
     MUL = 202,
+    WRITE = 300,
 
     // Note that atm we know that opcodes over 256 are a problem and so we have to use smaller numbers than 256
     // Crypto
 
     // KECCAK
-    KECCAKF = 241,
+    KECCAKF = 120,
 
     COMBSECP256K1 = 134,
     SMULSECP256K1,
     SINVSECP256K1,
     MULSSECP256K1,
+}
+
+pub fn convert_opcode(opcode: u32) -> u32 {
+    match opcode {
+        1 => 1,     // LOAD32
+        2 => 17,    // STORE32
+        3 => 33,    // JAL
+        4 => 49,    // JALV
+        5 => 65,    // BEQ
+        6 => 81,    // BNE
+        7 => 97,    // IMM32
+        8 => 113,   // STOP
+        9 => 129,   // READ_ADVICE
+        10 => 145,  // LOADFP
+        11 => 161,  // LOADU8
+        12 => 177,  // LOADS8
+        13 => 193,  // STOREU8
+        16 => 16,   // FAIL
+        20 => 209,  // MEMCPY
+        100 => 100, // ADD32
+        101 => 101, // SUB32
+        102 => 102, // MUL32
+        109 => 109, // XOR32
+        111 => 111, // NE32
+        112 => 112, // MULHU32
+        113 => 114, // SRA32
+        114 => 115, // MULH32
+        115 => 116, // LTE32
+        116 => 117, // EQ32
+        117 => 118, // SLT32
+        118 => 119, // SLE32
+        200 => 200, // ADD
+        201 => 201, // SUB
+        202 => 202, // MUL
+        300 => 225, // WRITE
+        120 => 241, // KECCAKF
+        134 => 134, // COMBSECP256K1
+        _ => opcode,
+    }
+}
+
+pub fn revert_opcode(opcode_value: u32) -> u32 {
+    match opcode_value {
+        1 => 1,     // LOAD32
+        17 => 2,    // STORE32
+        33 => 3,    // JAL
+        49 => 4,    // JALV
+        65 => 5,    // BEQ
+        81 => 6,    // BNE
+        97 => 7,    // IMM32
+        113 => 8,   // STOP
+        129 => 9,   // READ_ADVICE
+        145 => 10,  // LOADFP
+        161 => 11,  // LOADU8
+        177 => 12,  // LOADS8
+        193 => 13,  // STOREU8
+        16 => 16,   // FAIL
+        209 => 20,  // MEMCPY
+        100 => 100, // ADD32
+        101 => 101, // SUB32
+        102 => 102, // MUL32
+        109 => 109, // XOR32
+        111 => 111, // NE32
+        112 => 112, // MULHU32
+        114 => 113, // SRA32
+        115 => 114, // MULH32
+        116 => 115, // LTE32
+        117 => 116, // EQ32
+        118 => 117, // SLT32
+        119 => 118, // SLE32
+        200 => 200, // ADD
+        201 => 201, // SUB
+        202 => 202, // MUL
+        225 => 300, // WRITE
+        241 => 120, // KECCAKF
+        134 => 134, // COMBSECP256K1
+        _ => opcode_value,
+    }
 }
 
 macro_rules! declare_opcode {
