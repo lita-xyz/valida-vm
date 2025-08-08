@@ -79,8 +79,8 @@ where
 
         builder.assert_eq(
             local.opcode_flags.operation_code,
-            local.opcode_flags.is_load
-                * (AB::Expr::from_canonical_u32(CpuOperation::Load32 as u32 + 1))
+            local.opcode_flags.is_pointer_op
+                * (AB::Expr::from_canonical_u32(CpuOperation::Pointer as u32 + 1))
                 + local.opcode_flags.is_load
                     * (AB::Expr::from_canonical_u32(CpuOperation::Load32 as u32 + 1))
                 + local.opcode_flags.is_load_u8
@@ -110,6 +110,25 @@ where
                 + local.opcode_flags.is_write
                     * (AB::Expr::from_canonical_u32(CpuOperation::Write as u32 + 1)),
         );
+
+        let sum_opcode_flags = local.opcode_flags.is_bus_op
+            + local.opcode_flags.is_pointer_op
+            + local.opcode_flags.is_load
+            + local.opcode_flags.is_load_u8
+            + local.opcode_flags.is_load_s8
+            + local.opcode_flags.is_store
+            + local.opcode_flags.is_store_u8
+            + local.opcode_flags.is_beq
+            + local.opcode_flags.is_bne
+            + local.opcode_flags.is_jal
+            + local.opcode_flags.is_jalv
+            + local.opcode_flags.is_imm32
+            + local.opcode_flags.is_advice
+            + local.opcode_flags.is_stop
+            + local.opcode_flags.is_loadfp
+            + local.opcode_flags.is_write;
+        builder.assert_bool(sum_opcode_flags.clone());
+        builder.when(local.is_real).assert_one(sum_opcode_flags);
 
         // "Stop" constraints (to check that program execution was not stopped prematurely)
 
