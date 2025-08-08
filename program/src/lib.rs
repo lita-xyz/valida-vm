@@ -29,50 +29,6 @@ use valida_memory_footprint::MemoryFootprint;
 
 pub mod columns;
 
-#[derive(Clone)]
-pub enum CpuOperation {
-    Pointer,
-    Load32,
-    LoadU8,
-    LoadS8,
-    Store32,
-    StoreU8,
-    Beq,
-    Bne,
-    Jal,
-    Jalv,
-    Imm32,
-    ReadAdvice,
-    Stop,
-    LoadFp,
-    Write,
-}
-
-pub fn opcode_to_cpuoperation_code(opcode: u32) -> u32 {
-    if opcode == 0 {
-        return 0;
-    }
-
-    match Opcode::try_from(opcode).unwrap() {
-        Opcode::KECCAKF => CpuOperation::Pointer as u32 + 1,
-        Opcode::LOAD32 => CpuOperation::Load32 as u32 + 1,
-        Opcode::LOADU8 => CpuOperation::LoadU8 as u32 + 1,
-        Opcode::LOADS8 => CpuOperation::LoadS8 as u32 + 1,
-        Opcode::STORE32 => CpuOperation::Store32 as u32 + 1,
-        Opcode::STOREU8 => CpuOperation::StoreU8 as u32 + 1,
-        Opcode::BEQ => CpuOperation::Beq as u32 + 1,
-        Opcode::BNE => CpuOperation::Bne as u32 + 1,
-        Opcode::JAL => CpuOperation::Jal as u32 + 1,
-        Opcode::JALV => CpuOperation::Jalv as u32 + 1,
-        Opcode::IMM32 => CpuOperation::Imm32 as u32 + 1,
-        Opcode::READ_ADVICE => CpuOperation::ReadAdvice as u32 + 1,
-        Opcode::STOP => CpuOperation::Stop as u32 + 1,
-        Opcode::LOADFP => CpuOperation::LoadFp as u32 + 1,
-        Opcode::WRITE => CpuOperation::Write as u32 + 1,
-        _ => 0,
-    }
-}
-
 fn instruction_to_row<F: PrimeField32>(
     (pc, word): (usize, &InstructionWord<i32>),
 ) -> SmallVec<[F; SMALLVEC_SIZE]> {
@@ -179,10 +135,6 @@ fn instruction_to_row<F: PrimeField32>(
     let cols: &mut ProgramCols<MaybeUninit<F>> = { unsafe { transmute(&mut row) } };
     cols.pc.write(F::from_canonical_usize(pc));
     cols.opcode.write(F::from_canonical_u32(word.opcode));
-    cols.operation_code
-        .write(F::from_canonical_u32(opcode_to_cpuoperation_code(
-            word.opcode,
-        )));
 
     let operands = Operands::<F>::from_operands_i32(&word.operands);
 

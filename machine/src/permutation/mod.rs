@@ -193,7 +193,7 @@ fn reduce_interaction<F, Expr, Var, ExprEF>(
     interaction: &Interaction<F>,
     alpha: ExprEF,
     betas: Powers<ExprEF>,
-) -> (ExprEF, Expr, SmallVec<[Expr; 12]>)
+) -> (ExprEF, Expr, SmallVec<[Expr; 11]>)
 where
     F: Field + Into<Expr>,
     Var: Into<Expr> + Copy,
@@ -202,7 +202,7 @@ where
 {
     let mut rlc = ExprEF::zero();
 
-    const SMALLVEC_SIZE: usize = 12;
+    const SMALLVEC_SIZE: usize = 11;
     #[cfg(not(debug_assertions))]
     let interaction_vec: SmallVec<[_; SMALLVEC_SIZE]> = SmallVec::new();
     #[cfg(debug_assertions)]

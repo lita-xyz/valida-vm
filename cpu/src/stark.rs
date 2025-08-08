@@ -7,8 +7,7 @@ use valida_machine::{Word, MEMORY_CELL_BYTES};
 use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
 use p3_field::{AbstractField, PrimeField};
 use p3_matrix::MatrixRowSlices;
-use valida_opcodes::BYTES_PER_INSTR;
-use valida_program::CpuOperation;
+use valida_opcodes::{Opcode, BYTES_PER_INSTR};
 
 impl<F> BaseAir<F> for CpuChip {
     fn width(&self) -> usize {
@@ -78,38 +77,50 @@ where
         );
 
         builder.assert_eq(
-            local.opcode_flags.operation_code,
-            local.opcode_flags.is_pointer_op
-                * (AB::Expr::from_canonical_u32(CpuOperation::Pointer as u32 + 1))
-                + local.opcode_flags.is_load
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Load32 as u32 + 1))
-                + local.opcode_flags.is_load_u8
-                    * (AB::Expr::from_canonical_u32(CpuOperation::LoadU8 as u32 + 1))
-                + local.opcode_flags.is_load_s8
-                    * (AB::Expr::from_canonical_u32(CpuOperation::LoadS8 as u32 + 1))
-                + local.opcode_flags.is_store
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Store32 as u32 + 1))
-                + local.opcode_flags.is_store_u8
-                    * (AB::Expr::from_canonical_u32(CpuOperation::StoreU8 as u32 + 1))
-                + local.opcode_flags.is_beq
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Beq as u32 + 1))
-                + local.opcode_flags.is_bne
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Bne as u32 + 1))
-                + local.opcode_flags.is_jal
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Jal as u32 + 1))
-                + local.opcode_flags.is_jalv
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Jalv as u32 + 1))
-                + local.opcode_flags.is_imm32
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Imm32 as u32 + 1))
-                + local.opcode_flags.is_advice
-                    * (AB::Expr::from_canonical_u32(CpuOperation::ReadAdvice as u32 + 1))
-                + local.opcode_flags.is_stop
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Stop as u32 + 1))
-                + local.opcode_flags.is_loadfp
-                    * (AB::Expr::from_canonical_u32(CpuOperation::LoadFp as u32 + 1))
-                + local.opcode_flags.is_write
-                    * (AB::Expr::from_canonical_u32(CpuOperation::Write as u32 + 1)),
+            local.instruction.opcode,
+            local.instruction.opcode_lo16 * AB::Expr::one()
+                + local.instruction.opcode_hi16 * AB::Expr::from_canonical_u32(16),
         );
+
+        //builder
+        //    .when_ne(local.instruction.opcode_lo16, AB::Expr::one())
+        //    .assert_one(local.opcode_flags.is_bus_op);
+
+        builder
+            .when_ne(local.opcode_flags.is_bus_op, AB::Expr::one())
+            .assert_eq(
+                local.instruction.opcode,
+                local.opcode_flags.is_pointer_op
+                    * (AB::Expr::from_canonical_u32(Opcode::KECCAKF as u32))
+                    + local.opcode_flags.is_load
+                        * (AB::Expr::from_canonical_u32(Opcode::LOAD32 as u32))
+                    + local.opcode_flags.is_load_u8
+                        * (AB::Expr::from_canonical_u32(Opcode::LOADU8 as u32))
+                    + local.opcode_flags.is_load_s8
+                        * (AB::Expr::from_canonical_u32(Opcode::LOADS8 as u32))
+                    + local.opcode_flags.is_store
+                        * (AB::Expr::from_canonical_u32(Opcode::STORE32 as u32))
+                    + local.opcode_flags.is_store_u8
+                        * (AB::Expr::from_canonical_u32(Opcode::STOREU8 as u32))
+                    + local.opcode_flags.is_beq
+                        * (AB::Expr::from_canonical_u32(Opcode::BEQ as u32))
+                    + local.opcode_flags.is_bne
+                        * (AB::Expr::from_canonical_u32(Opcode::BNE as u32))
+                    + local.opcode_flags.is_jal
+                        * (AB::Expr::from_canonical_u32(Opcode::JAL as u32))
+                    + local.opcode_flags.is_jalv
+                        * (AB::Expr::from_canonical_u32(Opcode::JALV as u32))
+                    + local.opcode_flags.is_imm32
+                        * (AB::Expr::from_canonical_u32(Opcode::IMM32 as u32))
+                    + local.opcode_flags.is_advice
+                        * (AB::Expr::from_canonical_u32(Opcode::READ_ADVICE as u32))
+                    + local.opcode_flags.is_stop
+                        * (AB::Expr::from_canonical_u32(Opcode::STOP as u32))
+                    + local.opcode_flags.is_loadfp
+                        * (AB::Expr::from_canonical_u32(Opcode::LOADFP as u32))
+                    + local.opcode_flags.is_write
+                        * (AB::Expr::from_canonical_u32(Opcode::WRITE as u32)),
+            );
 
         let sum_opcode_flags = local.opcode_flags.is_bus_op
             + local.opcode_flags.is_pointer_op

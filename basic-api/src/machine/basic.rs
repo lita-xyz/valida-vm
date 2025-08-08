@@ -78,8 +78,7 @@ use valida_opcodes::BYTES_PER_INSTR;
 use valida_output::{MachineWithOutputChip, OutputChip, WriteInstruction};
 use valida_program::columns::{ProgramCols, NUM_PROGRAM_COLS};
 use valida_program::{
-    opcode_to_cpuoperation_code, MachineWithProgramChip, MachineWithProgramROM, ProgramChip,
-    ProgramTable, ProgramTableType,
+    MachineWithProgramChip, MachineWithProgramROM, ProgramChip, ProgramTable, ProgramTableType,
 };
 use valida_range::{MachineWithRangeChip, RangeCheckerChip, RangeTable};
 use valida_static_data::{MachineWithStaticDataChip, StaticDataChip, StaticDataChipType};
@@ -1368,13 +1367,6 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
             for i in 0..program_trace.height() {
                 let program_row = program_trace.row_mut(i);
                 let program_row: &mut ProgramCols<SC::Val> = program_row.borrow_mut();
-                if (program_row.operation_code
-                    != SC::Val::from_canonical_u32(opcode_to_cpuoperation_code(
-                        program_row.opcode.as_canonical_u32(),
-                    )))
-                {
-                    panic!("Invalid operation code at position {}", i);
-                }
             }
         }
 

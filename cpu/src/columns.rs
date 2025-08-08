@@ -60,12 +60,13 @@ pub struct CpuCols<T> {
 #[derive(Default, Debug)]
 pub struct InstructionCols<T> {
     pub opcode: T,
+    pub opcode_hi16: T,
+    pub opcode_lo16: T,
     pub operands: Operands<T>,
 }
 
 #[derive(Default, Debug)]
 pub struct OpcodeFlagCols<T> {
-    pub operation_code: T,
     pub is_bus_op: T,
     pub is_pointer_op: T,
     pub is_imm_op: T,

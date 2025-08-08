@@ -29,8 +29,8 @@ use valida_opcodes::{
     BEQ, BNE, BYTES_PER_INSTR, FAIL, IMM32, JAL, JALV, LOAD32, LOADFP, LOADS8, LOADU8, MEMCPY,
     READ_ADVICE, STOP, STORE32, STOREU8,
 };
+use valida_program::columns::NUM_PROGRAM_COLS;
 use valida_program::columns::PROGRAM_COL_MAP;
-use valida_program::{columns::NUM_PROGRAM_COLS, opcode_to_cpuoperation_code};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField, PrimeField32};
@@ -38,7 +38,6 @@ use p3_matrix::dense::RowMajorMatrix;
 use p3_maybe_rayon::prelude::*;
 use valida_machine::StarkConfig;
 use valida_memory_footprint::MemoryFootprint;
-use valida_program::CpuOperation;
 use valida_util::batch_multiplicative_inverse_allowing_zero;
 
 pub mod columns;
@@ -335,7 +334,6 @@ where
         let mut program_sends: Vec<Interaction<SC::Val>> = vec![];
         let pc: VirtualPairCol<SC::Val> = VirtualPairCol::single_main(CPU_COL_MAP.pc);
         let opcode = VirtualPairCol::single_main(CPU_COL_MAP.instruction.opcode);
-        let operation_code = VirtualPairCol::single_main(CPU_COL_MAP.opcode_flags.operation_code);
         let is_imm_op = VirtualPairCol::single_main(CPU_COL_MAP.opcode_flags.is_imm_op);
         let is_left_imm_op = VirtualPairCol::single_main(CPU_COL_MAP.opcode_flags.is_left_imm_op);
         // 1 - is_imm_op - is_left_imm_op (note that is_imm_op and is_left_imm_op are mutually exclusive, so this is always 0 or 1).
@@ -355,7 +353,6 @@ where
         // set the program columns that are common to all instructions
         fields_common[PROGRAM_COL_MAP.pc] = pc.clone();
         fields_common[PROGRAM_COL_MAP.opcode] = opcode.clone();
-        fields_common[PROGRAM_COL_MAP.operation_code] = operation_code;
 
         CPU_COL_MAP
             .instruction
@@ -544,9 +541,10 @@ impl CpuChip {
 
     fn set_instruction_values<F: PrimeField>(&self, clk: u32, cols: &mut CpuCols<F>) {
         cols.instruction.opcode = F::from_canonical_u32(self.instructions[clk as usize].opcode);
-        cols.opcode_flags.operation_code = F::from_canonical_u32(opcode_to_cpuoperation_code(
-            self.instructions[clk as usize].opcode,
-        ));
+        cols.instruction.opcode_lo16 =
+            F::from_canonical_u32(self.instructions[clk as usize].opcode & 0x0F);
+        cols.instruction.opcode_hi16 =
+            F::from_canonical_u32((self.instructions[clk as usize].opcode >> 4) & 0x0F);
         cols.instruction.operands =
             Operands::<F>::from_i32_slice(&self.instructions[clk as usize].operands.0);
     }
