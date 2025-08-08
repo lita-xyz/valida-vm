@@ -121,7 +121,7 @@ fn load_data(
     data
 }
 
-pub fn load_elf_object_file(file: &Vec<u8>, should_convert_opcode: bool) -> Program {
+pub fn load_elf_object_file(file: &Vec<u8>) -> Program {
     let file = minimal_parse_elf(file);
 
     let segments = file.segments().unwrap();

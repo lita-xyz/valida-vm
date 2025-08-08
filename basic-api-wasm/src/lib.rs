@@ -18,7 +18,7 @@ pub fn run(
     stdin: Vec<u8>,
     max_trace_height: u32,
 ) -> Result<Vec<u8>, String> {
-    let program = load_elf_object_file(&program_bytes, true);
+    let program = load_elf_object_file(&program_bytes);
     let specific = false;
 
     let (status, stdout) = valida_basic_api::commands::run(
@@ -45,7 +45,7 @@ pub fn prove(
     stdin: Vec<u8>,
     max_trace_height: u32,
 ) -> Result<Vec<u8>, String> {
-    let program = load_elf_object_file(&program_bytes, true);
+    let program = load_elf_object_file(&program_bytes);
     let specific = false;
 
     valida_basic_api::commands::prove(
@@ -68,7 +68,7 @@ pub fn verify(
     proof: Vec<u8>,
     max_trace_height: u32,
 ) -> Result<(), String> {
-    let program = load_elf_object_file(&program_bytes, true);
+    let program = load_elf_object_file(&program_bytes);
     let specific = false;
 
     valida_basic_api::commands::verify(
