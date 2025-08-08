@@ -45,7 +45,7 @@ impl<'a> Context<'a> {
             code,
             data,
             initial_program_counter,
-        } = load_elf_object_file(&program_bytes);
+        } = load_elf_object_file(&program_bytes, false);
 
         let initial_register_values = Registers {
             pc: initial_program_counter,

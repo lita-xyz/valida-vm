@@ -247,6 +247,78 @@ impl<F: Field> Operands<F> {
     }
 }
 
+pub fn convert_machine_code_to_opcode_value(original_opcode: u32) -> u32 {
+    if original_opcode == 1 {
+        1 // LOAD32
+    } else if original_opcode == 2 {
+        17 // STORE32
+    } else if original_opcode == 3 {
+        33 // JAL
+    } else if original_opcode == 4 {
+        49 // JALV
+    } else if original_opcode == 5 {
+        65 // BEQ
+    } else if original_opcode == 6 {
+        81 // BNE
+    } else if original_opcode == 7 {
+        97 // IMM32
+    } else if original_opcode == 8 {
+        113 // STOP
+    } else if original_opcode == 9 {
+        129 // READ_ADVICE
+    } else if original_opcode == 10 {
+        145 // LOADFP
+    } else if original_opcode == 11 {
+        161 // LOADU8
+    } else if original_opcode == 12 {
+        177 // LOADS8
+    } else if original_opcode == 13 {
+        193 // STOREU8
+    } else if original_opcode == 16 {
+        16 // FAIL
+    } else if original_opcode == 20 {
+        209 // MEMCPY
+    } else if original_opcode == 100 {
+        100 // ADD32
+    } else if original_opcode == 101 {
+        101 // SUB32
+    } else if original_opcode == 102 {
+        102 // MUL32
+    } else if original_opcode == 109 {
+        109 // XOR32
+    } else if original_opcode == 111 {
+        111 // NE32
+    } else if original_opcode == 112 {
+        112 // MULHU32
+    } else if original_opcode == 113 {
+        114 // SRA32
+    } else if original_opcode == 114 {
+        115 // MULH32
+    } else if original_opcode == 115 {
+        116 // LTE32
+    } else if original_opcode == 116 {
+        117 // EQ32
+    } else if original_opcode == 117 {
+        118 // SLT32
+    } else if original_opcode == 118 {
+        119 // SLE32
+    } else if original_opcode == 200 {
+        200 // ADD
+    } else if original_opcode == 201 {
+        201 // SUB
+    } else if original_opcode == 202 {
+        202 // MUL
+    } else if original_opcode == 300 {
+        225 // WRITE
+    } else if original_opcode == 120 {
+        120 // KECCAKF
+    } else if original_opcode == 134 {
+        134 // COMBSECP256K1
+    } else {
+        original_opcode
+    }
+}
+
 #[derive(Default, Clone, Debug)]
 pub struct ProgramROM<F>(pub Vec<InstructionWord<F>>);
 
@@ -268,11 +340,15 @@ impl<F> ProgramROM<F> {
 }
 
 impl ProgramROM<i32> {
-    pub fn from_machine_code(mc: &[u8]) -> Self {
+    pub fn from_machine_code(mc: &[u8], should_convert_opcode: bool) -> Self {
         let mut instructions = Vec::new();
         for chunk in mc.chunks_exact(INSTRUCTION_ELEMENTS * 4) {
             instructions.push(InstructionWord {
-                opcode: LittleEndian::read_u32(&chunk[0..4]),
+                opcode: if should_convert_opcode {
+                    convert_machine_code_to_opcode_value(LittleEndian::read_u32(&chunk[0..4]))
+                } else {
+                    LittleEndian::read_u32(&chunk[0..4])
+                },
                 operands: Operands([
                     LittleEndian::read_i32(&chunk[4..8]),
                     LittleEndian::read_i32(&chunk[8..12]),
@@ -301,7 +377,10 @@ impl ProgramROM<i32> {
                 *operand = reader.read_i32::<LittleEndian>()?;
             }
             let operands = Operands(operands_arr);
-            instructions.push(InstructionWord { opcode, operands });
+            instructions.push(InstructionWord {
+                opcode: opcode,
+                operands,
+            });
         }
 
         Ok(ProgramROM::new(instructions))

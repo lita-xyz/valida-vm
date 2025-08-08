@@ -75,7 +75,7 @@ fn main() {
 
     let program_file =
         fs::read(program).unwrap_or_else(|_| panic!("Failed to read executable file: {}", program));
-    let program = load_elf_object_file(&program_file);
+    let program = load_elf_object_file(&program_file, false);
     end_timer!(t_deser);
 
     let t_action = start_timer!(|| format!("valida | {}", args.action));

@@ -121,7 +121,7 @@ fn load_data(
     data
 }
 
-pub fn load_elf_object_file(file: &Vec<u8>) -> Program {
+pub fn load_elf_object_file(file: &Vec<u8>, should_convert_opcode: bool) -> Program {
     let file = minimal_parse_elf(file);
 
     let segments = file.segments().unwrap();
@@ -142,7 +142,7 @@ pub fn load_elf_object_file(file: &Vec<u8>) -> Program {
     let data = load_data(&file, &loadable_segments);
 
     Program {
-        code: ProgramROM::from_machine_code(code),
+        code: ProgramROM::from_machine_code(code, should_convert_opcode),
         data,
         initial_program_counter: 0,
     }

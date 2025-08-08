@@ -47,7 +47,7 @@ pub fn recursive_main(setup: ProgramTableType) {
     let vk_vec = read_component(&mut handle);
     let proof_vec = read_component(&mut handle);
 
-    let program = load_elf_object_file(&elf_vec);
+    let program = load_elf_object_file(&elf_vec, false);
     let machine = prepare_basic_machine(
         program.code.clone(),
         program.data.clone(),
