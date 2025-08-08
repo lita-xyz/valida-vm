@@ -54,6 +54,7 @@ pub fn opcode_to_cpuoperation_code(opcode: u32) -> u32 {
     }
 
     match Opcode::try_from(opcode).unwrap() {
+        Opcode::KECCAKF => CpuOperation::Pointer as u32 + 1,
         Opcode::LOAD32 => CpuOperation::Load32 as u32 + 1,
         Opcode::LOADU8 => CpuOperation::LoadU8 as u32 + 1,
         Opcode::LOADS8 => CpuOperation::LoadS8 as u32 + 1,
