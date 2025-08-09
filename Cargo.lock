@@ -2392,6 +2392,7 @@ name = "valida-opcodes"
 version = "0.1.0"
 dependencies = [
  "num_enum",
+ "p3-field",
 ]
 
 [[package]]

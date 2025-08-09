@@ -5,7 +5,7 @@ use core::mem::{size_of, transmute};
 use p3_field::PrimeField32;
 use valida_derive::AlignedBorrow;
 use valida_machine::{Operands, Word};
-use valida_opcodes::{revert_opcode, Opcode};
+use valida_opcodes::{unmap_field_value_to_opcode, Opcode};
 use valida_util::indices_arr;
 
 #[derive(AlignedBorrow, Default, Debug)]
@@ -18,8 +18,8 @@ pub struct ProgramCols<T> {
 
 impl<F: PrimeField32> Display for ProgramCols<F> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        let opcode_enum = Opcode::try_from(revert_opcode(self.opcode.as_canonical_u32()))
-            .expect("Invalid opcode");
+        let opcode_enum =
+            Opcode::try_from(unmap_field_value_to_opcode(self.opcode)).expect("Invalid opcode");
         write!(
             f,
             "ProgramCols {{ pc: {}, opcode: {:?}, operands: {:?}, imm: {:?} }}",

@@ -6,4 +6,5 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 num_enum = "0.5"
+p3-field = { workspace = true }
 

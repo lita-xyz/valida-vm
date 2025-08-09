@@ -14,7 +14,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Operands,
     PublicTrace, RunningMachine, Word,
 };
-use valida_opcodes::{convert_opcode, AND32, OR32, XOR32};
+use valida_opcodes::{map_opcode_to_field_value, AND32, OR32, XOR32};
 
 use valida_memory_footprint::MemoryFootprint;
 
@@ -109,18 +109,9 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (
-                    COL_MAP.is_and,
-                    SC::Val::from_canonical_u32(convert_opcode(AND32)),
-                ),
-                (
-                    COL_MAP.is_or,
-                    SC::Val::from_canonical_u32(convert_opcode(OR32)),
-                ),
-                (
-                    COL_MAP.is_xor,
-                    SC::Val::from_canonical_u32(convert_opcode(XOR32)),
-                ),
+                (COL_MAP.is_and, map_opcode_to_field_value(AND32)),
+                (COL_MAP.is_or, map_opcode_to_field_value(OR32)),
+                (COL_MAP.is_xor, map_opcode_to_field_value(XOR32)),
             ],
             SC::Val::zero(),
         );

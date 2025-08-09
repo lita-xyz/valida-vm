@@ -1,5 +1,7 @@
 use num_enum::TryFromPrimitive;
 
+use p3_field::PrimeField32;
+
 pub const BYTES_PER_INSTR: u32 = 24; // 4 bytes per word * 6 words per instruction
 
 #[repr(u32)]
@@ -58,7 +60,7 @@ pub enum Opcode {
     MULSSECP256K1,
 }
 
-pub fn convert_opcode(opcode: u32) -> u32 {
+pub fn map_opcode(opcode: u32) -> u32 {
     match opcode {
         1 => 1,     // LOAD32
         2 => 17,    // STORE32
@@ -97,7 +99,11 @@ pub fn convert_opcode(opcode: u32) -> u32 {
     }
 }
 
-pub fn revert_opcode(opcode_value: u32) -> u32 {
+pub fn map_opcode_to_field_value<F: PrimeField32>(opcode: u32) -> F {
+    F::from_canonical_u32(map_opcode(opcode))
+}
+
+pub fn unmap_opcode(opcode_value: u32) -> u32 {
     match opcode_value {
         1 => 1,     // LOAD32
         17 => 2,    // STORE32
@@ -134,6 +140,10 @@ pub fn revert_opcode(opcode_value: u32) -> u32 {
         134 => 134, // COMBSECP256K1
         _ => opcode_value,
     }
+}
+
+pub fn unmap_field_value_to_opcode<F: PrimeField32>(value: F) -> u32 {
+    unmap_opcode(value.as_canonical_u32())
 }
 
 macro_rules! declare_opcode {

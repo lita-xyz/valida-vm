@@ -14,7 +14,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Operands,
     PublicTrace, RunningMachine, Word, MEMORY_CELL_BYTES,
 };
-use valida_opcodes::{convert_opcode, LT32, LTE32, SLE32, SLT32};
+use valida_opcodes::{map_opcode, map_opcode_to_field_value, LT32, LTE32, SLE32, SLT32};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField};
@@ -108,22 +108,10 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (
-                    LT_COL_MAP.is_lt,
-                    SC::Val::from_canonical_u32(convert_opcode(LT32)),
-                ),
-                (
-                    LT_COL_MAP.is_lte,
-                    SC::Val::from_canonical_u32(convert_opcode(LTE32)),
-                ),
-                (
-                    LT_COL_MAP.is_slt,
-                    SC::Val::from_canonical_u32(convert_opcode(SLT32)),
-                ),
-                (
-                    LT_COL_MAP.is_sle,
-                    SC::Val::from_canonical_u32(convert_opcode(SLE32)),
-                ),
+                (LT_COL_MAP.is_lt, map_opcode_to_field_value(LT32)),
+                (LT_COL_MAP.is_lte, map_opcode_to_field_value(LTE32)),
+                (LT_COL_MAP.is_slt, map_opcode_to_field_value(SLT32)),
+                (LT_COL_MAP.is_sle, map_opcode_to_field_value(SLE32)),
             ],
             SC::Val::zero(),
         );

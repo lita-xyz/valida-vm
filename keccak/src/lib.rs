@@ -15,7 +15,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Operands,
     PublicTrace, RunningMachine, Word, MEMORY_CELL_BYTES,
 };
-use valida_opcodes::{convert_opcode, KECCAKF};
+use valida_opcodes::{map_opcode_to_field_value, KECCAKF};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField, PrimeField32};
@@ -306,7 +306,7 @@ where
     }
 
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
-        let opcode = VirtualPairCol::constant(SC::Val::from_canonical_u32(convert_opcode(KECCAKF)));
+        let opcode = VirtualPairCol::constant(map_opcode_to_field_value(KECCAKF));
         let mut fields = vec![opcode];
 
         let base_address = WRAPKECCAK_COL_MAP

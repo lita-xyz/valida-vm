@@ -15,7 +15,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, Instruction, Interaction, Operands, PublicTrace, Word,
 };
 use valida_machine::{ChipWithPersistence, RunningMachine, StarkConfig};
-use valida_opcodes::{convert_opcode, EQ32, NE32};
+use valida_opcodes::{map_opcode_to_field_value, EQ32, NE32};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField};
@@ -103,14 +103,8 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (
-                    COM_COL_MAP.is_ne,
-                    SC::Val::from_canonical_u32(convert_opcode(NE32)),
-                ),
-                (
-                    COM_COL_MAP.is_eq,
-                    SC::Val::from_canonical_u32(convert_opcode(EQ32)),
-                ),
+                (COM_COL_MAP.is_ne, map_opcode_to_field_value(NE32)),
+                (COM_COL_MAP.is_eq, map_opcode_to_field_value(EQ32)),
             ],
             SC::Val::zero(),
         );

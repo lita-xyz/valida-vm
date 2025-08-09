@@ -38,7 +38,7 @@ use p3_matrix::dense::RowMajorMatrix;
 use p3_maybe_rayon::prelude::*;
 use valida_machine::StarkConfig;
 use valida_memory_footprint::MemoryFootprint;
-use valida_opcodes::convert_opcode;
+use valida_opcodes::map_opcode;
 use valida_util::batch_multiplicative_inverse_allowing_zero;
 
 pub mod columns;
@@ -541,7 +541,7 @@ impl CpuChip {
     }
 
     fn set_instruction_values<F: PrimeField>(&self, clk: u32, cols: &mut CpuCols<F>) {
-        let new_pocode = convert_opcode(self.instructions[clk as usize].opcode);
+        let new_pocode = map_opcode(self.instructions[clk as usize].opcode);
         cols.instruction.opcode = F::from_canonical_u32(new_pocode);
         cols.instruction.opcode_lo16 = F::from_canonical_u32(new_pocode & 0x0F);
         cols.instruction.opcode_hi16 = F::from_canonical_u32((new_pocode >> 4) & 0x0F);
