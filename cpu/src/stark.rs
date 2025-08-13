@@ -76,6 +76,7 @@ where
             reduce::<AB>(&base, local.read_value_1()),
         );
 
+        // (TODO: we'd need to range check opcode_lo16, since it should be less thatn 16)
         builder.assert_eq(
             local.instruction.opcode,
             local.instruction.opcode_lo16 * AB::Expr::one()
