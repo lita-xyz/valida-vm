@@ -541,10 +541,10 @@ impl CpuChip {
     }
 
     fn set_instruction_values<F: PrimeField>(&self, clk: u32, cols: &mut CpuCols<F>) {
-        let new_pocode = map_opcode(self.instructions[clk as usize].opcode);
-        cols.instruction.opcode = F::from_canonical_u32(new_pocode);
-        cols.instruction.opcode_lo16 = F::from_canonical_u32(new_pocode & 0x0F);
-        cols.instruction.opcode_hi16 = F::from_canonical_u32((new_pocode >> 4) & 0x0F);
+        let new_opcode = map_opcode(self.instructions[clk as usize].opcode);
+        cols.instruction.opcode = F::from_canonical_u32(new_opcode);
+        cols.instruction.opcode_lo16 = F::from_canonical_u32(new_opcode & 0x0F);
+        cols.instruction.opcode_hi16 = F::from_canonical_u32((new_opcode >> 4) & 0x0F);
         cols.instruction.operands =
             Operands::<F>::from_i32_slice(&self.instructions[clk as usize].operands.0);
     }
