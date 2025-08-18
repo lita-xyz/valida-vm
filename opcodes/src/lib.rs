@@ -95,7 +95,10 @@ pub fn map_opcode(opcode: u32) -> u32 {
         300 => 225, // WRITE
         120 => 241, // KECCAKF
         134 => 134, // COMBSECP256K1
-        _ => opcode,
+        135 => 135, // SMULSECP256K1
+        136 => 136, // SINVSECP256K1
+        137 => 137, // MULSSECP256K1
+        _ => 0,
     }
 }
 
@@ -138,7 +141,10 @@ pub fn unmap_opcode(opcode_value: u32) -> u32 {
         225 => 300, // WRITE
         241 => 120, // KECCAKF
         134 => 134, // COMBSECP256K1
-        _ => opcode_value,
+        135 => 135, // SMULSECP256K1
+        136 => 136, // SINVSECP256K1
+        137 => 137, // MULSSECP256K1
+        _ => 0,
     }
 }
 
