@@ -76,16 +76,16 @@ where
             reduce::<AB>(&base, local.read_value_1()),
         );
 
-        // (TODO: we'd need to range check opcode_lo16, since it should be less thatn 16)
+        // (TODO: we'd need to range check opcode_lo4, since it should be less thatn 16)
         builder.assert_eq(
             local.instruction.opcode,
-            local.instruction.opcode_lo16 * AB::Expr::one()
-                + local.instruction.opcode_hi16 * AB::Expr::from_canonical_u32(16),
+            local.instruction.opcode_lo4 * AB::Expr::one()
+                + local.instruction.opcode_hi28 * AB::Expr::from_canonical_u32(16),
         );
 
         builder
             .when(local.is_real)
-            .when_ne(local.instruction.opcode_lo16, AB::Expr::one())
+            .when_ne(local.instruction.opcode_lo4, AB::Expr::one())
             .assert_one(local.opcode_flags.is_bus_op);
 
         builder
