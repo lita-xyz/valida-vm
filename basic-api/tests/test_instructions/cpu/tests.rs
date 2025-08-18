@@ -2,6 +2,7 @@ use crate::common::{BBMachine, BBState};
 use crate::testmachine::TestMachine;
 
 use p3_baby_bear::BabyBear;
+use p3_field::Field;
 use valida_basic_api::ValidaRuntime;
 use valida_cpu::{
     BeqInstruction, BneInstruction, JalInstruction, JalvInstruction, MachineWithCpuChip,
@@ -9,6 +10,7 @@ use valida_cpu::{
 };
 use valida_machine::{Instruction, Machine, Operands, StorageBackendTrait};
 use valida_memory::Operation::{DummyRead, Read, Write};
+use valida_opcodes::{map_opcode_to_field_value, unmap_field_value_to_opcode};
 
 #[test]
 // [fp + a] = 24 * (pc + 1)
@@ -295,4 +297,17 @@ fn test_stop() {
     assert_eq!(old_fp, new_fp);
     assert_eq!(state.memory_log_size(), 0);
     assert_eq!(state.memory_log(clk), expected_ops);
+}
+
+#[test]
+fn test_opcode_conversion() {
+    let mut count = 0;
+    for i in 0..512 {
+        let fval = map_opcode_to_field_value::<BabyBear>(i);
+        if !fval.is_zero() {
+            assert_eq!(i, unmap_field_value_to_opcode(fval));
+            count += 1;
+        }
+    }
+    assert_eq!(count, 36);
 }
