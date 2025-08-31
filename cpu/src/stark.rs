@@ -7,7 +7,7 @@ use valida_machine::{Word, MEMORY_CELL_BYTES};
 use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
 use p3_field::{AbstractField, PrimeField};
 use p3_matrix::MatrixRowSlices;
-use valida_opcodes::BYTES_PER_INSTR;
+use valida_opcodes::{Opcode, BYTES_PER_INSTR};
 
 impl<F> BaseAir<F> for CpuChip {
     fn width(&self) -> usize {
@@ -77,7 +77,14 @@ where
         );
 
         // "Stop" constraints (to check that program execution was not stopped prematurely)
-
+        builder
+            .when_last_row()
+            .when_ne(local.is_real, AB::Expr::zero())
+            .assert_one(local.opcode_flags.is_stop);
+        builder
+            .when_transition()
+            .when_ne(next.is_real, AB::Expr::one())
+            .assert_one(local.opcode_flags.is_stop);
         builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
