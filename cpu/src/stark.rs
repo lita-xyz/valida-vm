@@ -78,17 +78,13 @@ where
 
         // "Stop" constraints (to check that program execution was not stopped prematurely)
         builder
-            .when_last_row()
-            .when_ne(local.is_real, AB::Expr::zero())
-            .assert_one(local.opcode_flags.is_stop);
-        builder
-            .when_transition()
-            .when_ne(next.is_real, AB::Expr::one())
-            .assert_one(local.opcode_flags.is_stop);
-        builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
             .assert_eq(next.pc, AB::Expr::zero()); // zero, because padded with zeros
+        builder
+            .when_ne(local.is_last_segment, AB::Expr::zero())
+            .when_transition()
+            .assert_eq(local.opcode_flags.is_stop, local.is_real - next.is_real);
         builder
             .when_ne(local.is_last_segment, AB::Expr::zero())
             .when_last_row()
