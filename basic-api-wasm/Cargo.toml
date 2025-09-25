@@ -11,7 +11,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-getrandom = { version = "0.2.15", features = ["js"] }
+getrandom = { version = "0.2.16", features = ["js"] }
 wasm-bindgen = "0.2"
 valida-basic-api = { path = "../basic-api" }
 
