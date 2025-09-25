@@ -66,4 +66,4 @@ Here is an example output for `valida prove`
 Valida is a community-driven project, and we encourage contributions to both the VM and compiler.
 
 ## License
-The VM is licensed under the MIT and Apache licenses.
+The VM, compiler, and constraint generation code are open source, with no code obfuscation. The VM is licensed under the MIT and Apache licenses, while the compiler under the Apache license with LLVM Exceptions.

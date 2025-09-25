@@ -14,7 +14,7 @@ use valida_cpu::{
 };
 use valida_machine::{
     Instruction, InstructionWord, Machine, MachineMetrics, Operands, ProgramROM, ProverOptions,
-    SegmentMachine, Word,
+    SegmentMachine, ValidaMemoryBackend, Word,
 };
 
 use valida_program::{MachineWithProgramROM, ProgramTableType};
@@ -152,6 +152,7 @@ fn to_segment_boot_data(bd: ValidaBootData) -> ValidaSegmentBootData {
         static_data: Some(bd.static_data),
         static_data_chip_type: Some(bd.static_data_chip_type),
         log_enabled: true,
+        initial_memory_state: ValidaMemoryBackend::default(),
     }
 }
 
@@ -194,6 +195,7 @@ fn prove_multi_segment_static_data() {
     let boot_data = prepare_boot_data(4);
     let mut machine = MultiSegmentBasicMachine::<Val>::default();
     machine.init(boot_data);
+    machine.enable_logging(false);
 
     let mut runtime = ValidaRuntime::default_for_field::<BabyBear>();
     let mut state = machine.start(&mut runtime);

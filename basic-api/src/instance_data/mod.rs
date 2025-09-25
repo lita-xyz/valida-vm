@@ -10,7 +10,7 @@ use valida_program::rom_to_table;
 use valida_static_data::StaticDataChip;
 use valida_util::pad_to_power_of_two;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ValidaInstanceData {
     // The ROM is part of the instance data when the machine is run in universal setup mode, but
     // not when run with circuit-specific setup. The static data is part of the first-segment instance
@@ -83,7 +83,7 @@ impl<F: PrimeField32> MachineInstanceData<F> for ValidaInstanceData {
 #[derive(Debug)]
 pub struct MemoryCommitment {}
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct ValidaSegmentInstanceData {
     // In the context of the `run` (program execution) to generate the instance data
     // we set `rom` and `static_data` to `None` for all segments, as this would be duplicated

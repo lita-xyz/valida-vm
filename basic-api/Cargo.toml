@@ -1,11 +1,14 @@
 [package]
 name = "valida-basic-api"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
+[lib]
+crate-type = ["lib", "cdylib"]
+
 [dependencies]
-ark-std = "0.4.0"
+ark-std = { version = "0.4"}
 byteorder = "1.4.3"
 ciborium = "0.2.2"
 clap = { version = "4.3.19", features = ["derive"] }
@@ -50,6 +53,9 @@ p3-merkle-tree = { workspace = true }
 p3-poseidon = { workspace = true }
 p3-symmetric = { workspace = true }
 postcard = { version = "1.0.10", features = ["alloc"] }
+rayon = "1.10.0"
+serde = { version = "1.0.217", features = ["derive"] }
+bincode = "2.0.1"
 
 [dev-dependencies]
 ciborium = "0.2.2"

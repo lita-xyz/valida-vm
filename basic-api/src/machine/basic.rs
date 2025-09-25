@@ -1,6 +1,7 @@
 #![feature(trait_upcasting)]
 use core::marker::PhantomData;
 
+use std::borrow::BorrowMut;
 use std::fs::File;
 use std::io::Write;
 use std::ops::RangeInclusive;
@@ -41,6 +42,7 @@ use valida_bus::{
     MachineWithRangeBus8,
 };
 use valida_bytes::{BytesChip, BytesTable, MachineWithBytesChip, MachineWithRangeCheckeru8};
+use valida_cpu::columns::CpuCols;
 use valida_cpu::{
     BeqInstruction, BneInstruction, CpuChip, FailInstruction, Imm32Instruction, JalInstruction,
     JalvInstruction, Load32Instruction, LoadFpInstruction, LoadS8Instruction, LoadU8Instruction,
@@ -65,8 +67,8 @@ use valida_machine::{
     MachineInstanceData, MachineProof, MachineProverKey, MachineRuntime, MachineVerifierKey,
     MachineWithFinalMemoryState, MemoryAccessTimestamp, MemoryBackendTrait, OpenedValues, Operands,
     PcsError, ProgramROM, ProverOptions, PublicTrace, PublicValues, RunningMachine, SegmentMachine,
-    StarkConfig, StarkField, StoppingFlag, StorageBackendType, ValidaStorageBackend,
-    VerificationError, Word, NUM_CHIPS,
+    StarkConfig, StarkField, StoppingFlag, StorageBackendType, ValidaMemoryBackend,
+    ValidaStorageBackend, VerificationError, Word, NUM_CHIPS,
 };
 use valida_memory::{
     add_diff_bytes_receives, columns::MemoryCols, MachineWithMemoryChip, MemoryBackend,
@@ -123,6 +125,7 @@ impl<F: StarkField> MemoryFootprint for BasicMachine<F> {
 
         result += self.no_log.memory_footprint();
         result += self.max_segment_size.memory_footprint();
+        result += self.memory_operation_count.memory_footprint();
 
         result
     }
@@ -206,6 +209,9 @@ pub struct BasicMachine<F: StarkField> {
     no_log: bool,
 
     max_segment_size: usize,
+
+    // Track memory operations independently of logging for segment splitting
+    memory_operation_count: u32,
 
     _phantom_sc: PhantomData<fn() -> F>,
 }
@@ -311,7 +317,7 @@ type Com<SC> = <<SC as StarkConfig>::Pcs as Pcs<Val<SC>, ValMat<SC>>>::Commitmen
 type PcsProof<SC> = <<SC as StarkConfig>::Pcs as Pcs<Val<SC>, ValMat<SC>>>::Proof;
 
 /// Get the vector of the zetas for each trace
-pub fn calc_zeta<F: StarkField, SC: StarkConfig<Val = F>>(
+pub fn calc_zeta<F: PrimeField32 + TwoAdicField, SC: StarkConfig<Val = F>>(
     g_subgroups: [F; 15],
     has_traces: [bool; NUM_CHIPS],
     zeta: SC::Challenge,
@@ -731,6 +737,8 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         self.set_max_trace_height(boot_data.max_trace_height);
         self.set_program_rom(boot_data.program_rom, boot_data.program_table_type);
         self.set_initial_register_values(boot_data.initial_register_values);
+        // Reset memory operation count for new segment
+        self.memory_operation_count = 0;
         let static_data_chip_type = match boot_data.program_table_type {
             ProgramTableType::Public => StaticDataChipType::Public,
             ProgramTableType::Preprocessed => StaticDataChipType::Preprocessed,
@@ -799,33 +807,35 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         };
 
         // Add receives for `diff_bytes` in the memory columns
-        add_diff_bytes_receives(&mut *state.machine);
+        if log {
+            add_diff_bytes_receives(&mut *state.machine);
 
-        // Extract the "final" memory state for this segment. This is needed to avoid sending
-        // persistent sends/receives, which do not make sense for a single segment.
-        let final_memory_state = state
-            .runtime
-            .memory_backend()
-            .into_iter()
-            .map(|(addr, record)| {
-                (
-                    addr,
-                    record.value,
-                    // NOTE: Values follow `MemoryAccessTimestamp::as_scalar` (but as a usize) with exception of
-                    // `ThisSegment`. `3` so that it yields the value expected by a multi segment machine for
-                    // segment zero.
-                    match record.last_accessed {
-                        MemoryAccessTimestamp::ThisSegment => 3,
-                        MemoryAccessTimestamp::PriorSegment(segment) => 3 + segment,
-                        MemoryAccessTimestamp::ZeroInitialized => 0,
-                        MemoryAccessTimestamp::Static => 2,
-                    },
-                )
-            })
-            .collect();
-        // For a multi segment machine, the `final_memory_state` field for each segment will be
-        // overwritten after all segments have finished execution
-        state.machine.final_memory_state = final_memory_state;
+            // Extract the "final" memory state for this segment. This is needed to avoid sending
+            // persistent sends/receives, which do not make sense for a single segment.
+            let final_memory_state = state
+                .runtime
+                .memory_backend()
+                .into_iter()
+                .map(|(addr, record)| {
+                    (
+                        addr,
+                        record.value,
+                        // NOTE: Values follow `MemoryAccessTimestamp::as_scalar` (but as a usize) with exception of
+                        // `ThisSegment`. `3` so that it yields the value expected by a multi segment machine for
+                        // segment zero.
+                        match record.last_accessed {
+                            MemoryAccessTimestamp::ThisSegment => 3,
+                            MemoryAccessTimestamp::PriorSegment(segment) => 3 + segment,
+                            MemoryAccessTimestamp::ZeroInitialized => 0,
+                            MemoryAccessTimestamp::Static => 2,
+                        },
+                    )
+                })
+                .collect();
+            // For a multi segment machine, the `final_memory_state` field for each segment will be
+            // overwritten after all segments have finished execution
+            state.machine.final_memory_state = final_memory_state;
+        }
 
         // the rom and static_data are only needed when the machine is run in universal setup mode
         let rom = {
@@ -1542,16 +1552,41 @@ impl<F: StarkField> Machine<F> for BasicMachine<F> {
         let log = state.machine.log_enabled();
         state.machine.read_word(pc, log);
 
-        // A STOP instruction signals the end of the program
+        // Check for stop/fail conditions first
         if opcode == <StopInstruction as Instruction<Self, F>>::OPCODE {
-            StoppingFlag::DidStop
+            eprintln!("Reached stop instruction");
+            return StoppingFlag::DidStop;
         } else if opcode == <FailInstruction as Instruction<Self, F>>::OPCODE {
-            StoppingFlag::DidFail
-        } else if state.machine.current_trace_height() >= state.machine.max_trace_height() {
-            StoppingFlag::SizeLimitReached
-        } else {
-            StoppingFlag::DidNotStop
+            return StoppingFlag::DidFail;
         }
+
+        // Check for size limit based on memory operations
+        if state.machine.memory_operation_count >= state.machine.max_trace_height() {
+            // Don't split during control flow instructions to maintain PC
+            // continuity
+            let is_control_flow_instruction = matches!(
+                opcode,
+                <JalInstruction as Instruction<Self, F>>::OPCODE
+                    | <JalvInstruction as Instruction<Self, F>>::OPCODE
+                    | <BeqInstruction as Instruction<Self, F>>::OPCODE
+                    | <BneInstruction as Instruction<Self, F>>::OPCODE
+            );
+
+            // Allow a small buffer to complete control flow sequences
+            let buffer_exceeded =
+                state.machine.memory_operation_count >= state.machine.max_trace_height() * 2;
+
+            if !is_control_flow_instruction && !buffer_exceeded {
+                return StoppingFlag::SizeLimitReached;
+            } else if buffer_exceeded {
+                // Force split even during control flow if buffer is exceeded
+                // (safety mechanism)
+                return StoppingFlag::SizeLimitReached;
+            }
+        }
+
+        // If none of the above conditions are met, continue
+        StoppingFlag::DidNotStop
     }
 }
 
@@ -1584,30 +1619,38 @@ impl<F: StarkField> SegmentMachine<F> for BasicMachine<F> {
     /// Suspend the current segment machine, returning the boot data for the next segment machine.
     fn suspend(mut state: RunningMachine<F, Self>) -> (Self::BootData, Self) {
         Self::suspend_memory_state(&mut state);
-        // NOTE: We *cannot* use the values from `state.machine.cpu().registers` as the starting point for the
-        // next segment. These represent the register values of the *LAST EXECUTED* instruction. But this last
-        // instruction will *modify* the program counter to a different value to point to the *next* instruction
-        // that needs to be executed (in a non trivial way, if the last instruction contained was a branching / jumping
-        // instruction).
+
         let reg = Registers {
             pc: state.machine.cpu().pc,
             fp: state.machine.cpu().fp,
         };
-        (
-            ValidaSegmentBootData {
-                initial_register_values: reg,
-                // Increment the segment number for the next segment.
-                segment_number: state.machine.segment_number() + 1,
-                max_trace_height: state.machine.max_trace_height(),
-                program_rom: state.machine.program_rom().clone(),
-                program_table_type: state.machine.program_table_type(),
-                program_file: state.machine.program_file.clone(),
-                static_data: Some(state.machine.static_data().get_cells().clone()), // TODO: Should we always use `Some` here?
-                static_data_chip_type: Some(state.machine.static_data().chip_type()),
-                log_enabled: state.machine.log_enabled(),
+
+        let boot_data = ValidaSegmentBootData {
+            initial_register_values: reg,
+            segment_number: state.machine.segment_number() + 1,
+            max_trace_height: state.machine.max_trace_height(),
+            program_rom: state.machine.program_rom().clone(),
+            program_table_type: state.machine.program_table_type(),
+            program_file: if state.machine.log_enabled() {
+                state.machine.program_file.clone()
+            } else {
+                Vec::new() // Skip clone in fast mode
             },
-            *state.machine,
-        )
+            static_data: if state.machine.log_enabled() {
+                Some(state.machine.static_data().get_cells().clone())
+            } else {
+                None // Skip clone in fast mode
+            },
+            static_data_chip_type: if state.machine.log_enabled() {
+                Some(state.machine.static_data().chip_type())
+            } else {
+                None
+            },
+            log_enabled: state.machine.log_enabled(),
+            initial_memory_state: state.runtime.memory_backend().clone(), // MUST clone even in fast mode
+        };
+
+        (boot_data, *state.machine)
     }
 
     /// Generate main traces for all the chips in a machine.
@@ -2275,6 +2318,10 @@ impl<F: StarkField> MachineWithMemoryChip<F> for BasicMachine<F> {
 
     fn mem_mut(&mut self) -> &mut MemoryChip {
         &mut self.mem
+    }
+
+    fn increment_memory_operation_count(&mut self, count: u32) {
+        self.memory_operation_count += count;
     }
 }
 

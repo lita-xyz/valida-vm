@@ -259,7 +259,7 @@ fn prove_fibonacci() {
         .verify(
             &config,
             &deserialized_proof,
-            &vk,
+            &vk,execution
             &instance_data,
             show_traces,
         )

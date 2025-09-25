@@ -58,6 +58,7 @@ pub fn prove(
         specific,
         max_trace_height,
         program_bytes,
+        1, // max_parallel_segments - use sequential execution for WASM
     )
 }
 
@@ -151,6 +152,6 @@ pub mod tests {
     #[wasm_bindgen_test]
     #[test]
     fn wasm_bindings_test_small_trace_size() {
-        wasm_bindgen_test(1000);
+        wasm_bindgen_test(8192);
     }
 }

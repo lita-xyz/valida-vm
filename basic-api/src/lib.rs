@@ -27,3 +27,5 @@ pub use valida_cpu::Registers;
 // This was previously `pub use valida_elf::*;``
 pub use valida_elf::load_elf_object_file;
 pub use valida_machine::Word;
+
+pub mod embdebug;

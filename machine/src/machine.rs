@@ -60,7 +60,7 @@ pub trait MachineRuntime {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ProverOptions {
     pub show_main: Vec<bool>,
     pub show_public: Vec<bool>,
@@ -143,7 +143,12 @@ pub trait Machine<F: Field>: Sync {
         instance_data: &Self::InstanceData,
     ) -> Self::Proof<SC>
     where
-        SC: StarkConfig<Val = F>;
+        SC: StarkConfig<Val = F> + Send + Sync + Clone + 'static,
+        <SC::Pcs as Pcs<SC::Val, RowMajorMatrix<SC::Val>>>::ProverData:
+            Send + Sync + Clone + 'static,
+        <<SC as StarkConfig>::Pcs as Pcs<F, RowMajorMatrix<F>>>::Proof:
+            Send + Sync + Clone + 'static,
+        <<SC as StarkConfig>::Pcs as Pcs<F, RowMajorMatrix<F>>>::Commitment: Send + Sync + 'static;
 
     fn compute_log_quotient_degrees<SC: StarkConfig<Val = F>>(&self) -> [usize; NUM_CHIPS];
 

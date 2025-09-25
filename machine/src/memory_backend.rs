@@ -81,7 +81,7 @@ impl<R: MemoryFootprint> MemoryFootprint for ValidaStorageBackend<R> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct ValidaMemoryBackend {
     pub storage: ValidaStorageBackend<MemoryRecord>,
     memory_size: u32,

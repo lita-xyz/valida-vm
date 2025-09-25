@@ -81,7 +81,10 @@ where
         _machine: &M,
         verbose: bool,
     ) -> (Option<RowMajorMatrix<SC::Val>>, Option<Vec<String>>) {
-        debug_assert_eq!(self.tape.len(), self.clks_log.len());
+        // Only assert equality when we have clock logs (i.e., when logging was enabled)
+        // In multi-segment mode, the first pass runs with logging disabled but may still
+        // call generate_main_trace, causing tape and clks_log to have different lengths
+        debug_assert!(self.clks_log.is_empty() || self.tape.len() == self.clks_log.len());
 
         let mut rows = self
             .clks_log

@@ -17,12 +17,12 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, Instruction, Interaction, Operands, Word,
 };
 use valida_machine::{ChipWithPersistence, PublicTrace, RunningMachine};
-use valida_opcodes::ADD32;
 use valida_opcodes::LT32;
 use valida_opcodes::MUL32;
 use valida_opcodes::MULHS32;
 use valida_opcodes::MULHU32;
 use valida_opcodes::SLT32;
+use valida_opcodes::{map_opcode_to_field_value, ADD32};
 use valida_opcodes::{DIV32, SDIV32};
 use valida_util::pad_to_power_of_two;
 
@@ -123,8 +123,8 @@ where
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
         let opcode = VirtualPairCol::new_main(
             vec![
-                (DIV_COL_MAP.is_div, SC::Val::from_canonical_u32(DIV32)),
-                (DIV_COL_MAP.is_sdiv, SC::Val::from_canonical_u32(SDIV32)),
+                (DIV_COL_MAP.is_div, map_opcode_to_field_value(DIV32)),
+                (DIV_COL_MAP.is_sdiv, map_opcode_to_field_value(SDIV32)),
             ],
             SC::Val::zero(),
         );
@@ -188,8 +188,8 @@ where
 
         let lt_opcode = VirtualPairCol::new_main(
             vec![
-                (DIV_COL_MAP.is_div, SC::Val::from_canonical_u32(LT32)),
-                (DIV_COL_MAP.is_sdiv, SC::Val::from_canonical_u32(SLT32)),
+                (DIV_COL_MAP.is_div, map_opcode_to_field_value(LT32)),
+                (DIV_COL_MAP.is_sdiv, map_opcode_to_field_value(SLT32)),
             ],
             SC::Val::zero(),
         );
@@ -246,7 +246,7 @@ where
         let mul_lower_output = DIV_COL_MAP
             .product_lower
             .transform(VirtualPairCol::single_main);
-        let mul_lower_opcode = VirtualPairCol::constant(SC::Val::from_canonical_u32(MUL32));
+        let mul_lower_opcode = VirtualPairCol::constant(map_opcode_to_field_value(MUL32));
         let mul_lower_fields = vec![mul_lower_opcode]
             .into_iter()
             .chain(mul_input_1.clone().into_iter_le())
@@ -265,8 +265,8 @@ where
             .transform(VirtualPairCol::single_main);
         let mul_upper_opcode = VirtualPairCol::new_main(
             vec![
-                (DIV_COL_MAP.is_div, SC::Val::from_canonical_u32(MULHU32)),
-                (DIV_COL_MAP.is_sdiv, SC::Val::from_canonical_u32(MULHS32)),
+                (DIV_COL_MAP.is_div, map_opcode_to_field_value(MULHU32)),
+                (DIV_COL_MAP.is_sdiv, map_opcode_to_field_value(MULHS32)),
             ],
             SC::Val::zero(),
         );
@@ -293,7 +293,7 @@ where
                 .transform(VirtualPairCol::single_main);
             let add_input_2 = DIV_COL_MAP.remainder.transform(VirtualPairCol::single_main);
             let add_output = DIV_COL_MAP.input_1.transform(VirtualPairCol::single_main);
-            let add_opcode = VirtualPairCol::constant(SC::Val::from_canonical_u32(ADD32));
+            let add_opcode = VirtualPairCol::constant(map_opcode_to_field_value(ADD32));
             Interaction {
                 fields: vec![add_opcode]
                     .into_iter()
@@ -311,7 +311,7 @@ where
             let add_output = DIV_COL_MAP
                 .product_lower
                 .transform(VirtualPairCol::single_main);
-            let add_opcode = VirtualPairCol::constant(SC::Val::from_canonical_u32(ADD32));
+            let add_opcode = VirtualPairCol::constant(map_opcode_to_field_value(ADD32));
             let different_sign = VirtualPairCol::new_main(
                 vec![
                     (DIV_COL_MAP.is_sdiv, SC::Val::one()),

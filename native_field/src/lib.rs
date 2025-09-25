@@ -208,10 +208,10 @@ where
                 .push(Operation::Add(a, b, c));
 
             state.machine.push_bus_op(imm, opcode, ops);
+            state.machine.range_check_word(a);
         }
 
         state.machine.step_pc();
-        state.machine.range_check_word(a);
     }
 }
 
@@ -250,10 +250,10 @@ where
                 .push(Operation::Sub(a, b, c));
 
             state.machine.push_bus_op(imm, opcode, ops);
+            state.machine.range_check_word(a);
         }
 
         state.machine.step_pc();
-        state.machine.range_check_word(a);
     }
 }
 
@@ -292,9 +292,9 @@ where
                 .push(Operation::Mul(a, b, c));
 
             state.machine.push_bus_op(imm, opcode, ops);
+            state.machine.range_check_word(a);
         }
 
         state.machine.step_pc();
-        state.machine.range_check_word(a);
     }
 }

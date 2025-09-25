@@ -17,7 +17,7 @@ pub trait Instruction<M: Machine<F>, F: Field> {
     fn execute(state: &mut RunningMachine<'_, F, M>, ops: Operands<i32>);
 }
 
-#[derive(Copy, Clone, Default, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct InstructionWord<F> {
     pub opcode: u32,
     pub operands: Operands<F>,
@@ -26,6 +26,15 @@ pub struct InstructionWord<F> {
 impl<F> MemoryFootprint for InstructionWord<F> {
     fn memory_footprint(&self) -> usize {
         self.opcode.memory_footprint() + self.operands.memory_footprint()
+    }
+}
+
+impl Default for InstructionWord<i32> {
+    fn default() -> InstructionWord<i32> {
+        InstructionWord::<i32> {
+            opcode: 0x0,
+            operands: Operands::<i32>([0x0, 0x0, 0x0, 0x0, 0x0]),
+        }
     }
 }
 
@@ -48,6 +57,13 @@ impl InstructionWord<i32> {
         let mut result = [F::default(); INSTRUCTION_ELEMENTS];
         result[0] = F::from_canonical_u32(self.opcode);
         result[1..].copy_from_slice(&Operands::<F>::from_i32_slice(&self.operands.0).0);
+        result
+    }
+
+    pub fn flatten_u32(&self) -> [u32; INSTRUCTION_ELEMENTS] {
+        let mut result = [0; INSTRUCTION_ELEMENTS];
+        result[0] = self.opcode;
+        result[1..].copy_from_slice(&self.operands.0.map(|x| x as u32));
         result
     }
 
@@ -301,7 +317,10 @@ impl ProgramROM<i32> {
                 *operand = reader.read_i32::<LittleEndian>()?;
             }
             let operands = Operands(operands_arr);
-            instructions.push(InstructionWord { opcode, operands });
+            instructions.push(InstructionWord {
+                opcode: opcode,
+                operands,
+            });
         }
 
         Ok(ProgramROM::new(instructions))

@@ -16,6 +16,8 @@ use valida_memory::Operation::{DummyRead, Read, Write};
 use proptest::prelude::*;
 use proptest::sample::Selector;
 
+use rand::Rng;
+
 fn mem_strat() -> BoxedStrategy<BBState> {
     bb_state_strategy(DataStrategy::Numerical, MemorySize::default()).boxed()
 }

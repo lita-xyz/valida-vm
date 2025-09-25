@@ -273,6 +273,7 @@ pub trait MachineWithMemoryChip<F: PrimeField>:
 {
     fn mem(&self) -> &MemoryChip;
     fn mem_mut(&mut self) -> &mut MemoryChip;
+    fn increment_memory_operation_count(&mut self, count: u32);
 
     fn read(state: &mut RunningMachine<'_, F, Self>, clk: u32, address: u32) -> Word<u8> {
         let log = state.machine.log_enabled();
@@ -305,25 +306,37 @@ pub trait MachineWithMemoryChip<F: PrimeField>:
             // Check the address is within the valid range for the field
             state.machine.check_half_baby_bear_range(&address.into());
         }
+
+        // Always increment memory operation count for each read, regardless of log setting
+        state.machine.increment_memory_operation_count(1);
+
         record.value
     }
 
     fn write(state: &mut RunningMachine<'_, F, Self>, clk: u32, address: u32, value: Word<u8>) {
         let log = state.machine.log_enabled();
         let mut dummy_read_addresses = Vec::new();
+        let mut memory_ops_count = 0;
+
+        // Check the global memory backend to see if the cell has been initialized
+        let MemoryRecord {
+            value: old_value,
+            last_accessed,
+        } = state
+            .runtime
+            .memory_backend()
+            .get(&address)
+            .copied()
+            .unwrap_or_default();
+
+        // Count memory operations consistently regardless of log setting
+        if !matches!(last_accessed, MemoryAccessTimestamp::ThisSegment) {
+            memory_ops_count += 1; // Count the dummy read
+        }
+        memory_ops_count += 1; // Count the write operation
+
         if log {
             let operations = &mut state.machine.mem_mut().operations;
-
-            // Check the global memory backend to see if the cell has been initialized
-            let MemoryRecord {
-                value: old_value,
-                last_accessed,
-            } = state
-                .runtime
-                .memory_backend()
-                .get(&address)
-                .copied()
-                .unwrap_or_default();
 
             // If the cell is uninitialized for this execution segment, log a dummy read
             // operation to record the cell's prior value and last access time.
@@ -354,6 +367,11 @@ pub trait MachineWithMemoryChip<F: PrimeField>:
                 state.machine.check_half_baby_bear_range(&addr.into());
             }
         }
+
+        // Always increment memory operation count, regardless of log setting
+        state
+            .machine
+            .increment_memory_operation_count(memory_ops_count);
 
         // Update the (global) memory backend with the new record, and mark that
         // we accessed this address in this segment.

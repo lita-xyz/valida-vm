@@ -14,7 +14,7 @@ use valida_machine::{
     instructions, Chip, ChipTraceHeight, ChipWithPersistence, Instruction, Interaction, Operands,
     PublicTrace, RunningMachine, Word,
 };
-use valida_opcodes::ADD32;
+use valida_opcodes::{map_opcode_to_field_value, ADD32};
 
 use p3_air::VirtualPairCol;
 use p3_field::{AbstractField, PrimeField};
@@ -109,7 +109,7 @@ where
     }
 
     fn global_receives(&self, machine: &M) -> Vec<Interaction<SC::Val>> {
-        let opcode = VirtualPairCol::constant(SC::Val::from_canonical_u32(ADD32));
+        let opcode = VirtualPairCol::constant(map_opcode_to_field_value(ADD32));
         let input_1 = ADD_COL_MAP.input_1.transform(VirtualPairCol::single_main);
         let input_2 = ADD_COL_MAP.input_2.transform(VirtualPairCol::single_main);
         let output = ADD_COL_MAP.output.transform(VirtualPairCol::single_main);
@@ -214,6 +214,8 @@ where
         }
         state.machine.step_pc();
 
-        state.machine.range_check_word(a);
+        if state.machine.log_enabled() {
+            state.machine.range_check_word(a);
+        }
     }
 }

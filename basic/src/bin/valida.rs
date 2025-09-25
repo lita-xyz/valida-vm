@@ -7,8 +7,7 @@ use valida_basic_api::commands::common::default_config;
 use valida_basic_api::commands::prove::ProveDebugOptions;
 use valida_basic_api::commands::{
     get_file_write_callback, get_fixed_advice_provider_from_file, get_stdin_advice_provider,
-    preprocess, preprocess_basic_machine, prove, prove_basic_machine, run, run_basic_machine,
-    verify, verify_basic_machine, AdviceProviderWithDefault, WriteCallbackWithDefault,
+    preprocess, prove, run, verify, AdviceProviderWithDefault, WriteCallbackWithDefault,
 };
 use valida_elf::load_elf_object_file;
 
@@ -82,7 +81,7 @@ fn main() {
     let config = default_config();
 
     // TODO: set segment_number appropriately when proving multi-segment executions
-    let segment_number = 0;
+    let _segment_number = 0;
 
     // NOTE: Currently we call the run/preprocess/prove/verify functions that internally use
     // the `BasicMachine` instead of the MultiSegmentBasicMachine. Once the latter is fully
@@ -134,6 +133,7 @@ fn main() {
                     args.specific,
                     max_trace_height,
                     program_file,
+                    cmd.max_parallel_segments,
                 )?;
                 action_file
                     .write_all(&proof)

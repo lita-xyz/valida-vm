@@ -41,6 +41,7 @@ pub trait StarkConfig {
     fn challenger(&self) -> Self::Challenger;
 }
 
+#[derive(Clone)]
 pub struct StarkConfigImpl<Val, Challenge, PackedChallenge, Pcs, Challenger> {
     pcs: Pcs,
     init_challenger: Challenger,

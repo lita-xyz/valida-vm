@@ -134,7 +134,7 @@ pub fn prove_basic_machine(
     Ok(bytes)
 }
 
-/// The future default prove function for the `MultiSegmentBasicMachine`
+/// The default prove function for the `MultiSegmentBasicMachine` with parallelization support
 pub fn prove(
     program: Program,
     opts: ProveDebugOptions,
@@ -145,6 +145,7 @@ pub fn prove(
     specific: bool,
     max_trace_height: u32,
     program_file: Vec<u8>,
+    max_parallel_segments: usize,
 ) -> Result<Vec<u8>, String> {
     let t_prep = start_timer!(|| "valida | Prepare machine");
     let mut machine = prepare_machine(
@@ -158,6 +159,10 @@ pub fn prove(
         max_trace_height,
         program_file.clone(),
     );
+
+    // Set the max_parallel_segments on the machine
+    machine.set_max_parallel_segments(max_parallel_segments);
+
     // Assign the read and write callbacks to the `ValidaRuntime`
     let mut runtime = prepare_runtime(advice_provider, WriteCallbackWithDefault::default())
         .unwrap_or_else(|err| panic!("Failed to prepare runtime: {:?}", err));

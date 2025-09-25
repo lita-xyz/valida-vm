@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 
-use valida_cpu::Registers;
-use valida_machine::{ProgramROM, Word};
+use valida_cpu::{Operation, Registers};
+use valida_machine::{ProgramROM, ValidaMemoryBackend, Word};
+use valida_memory_footprint::MemoryFootprint;
 use valida_program::ProgramTableType;
 use valida_static_data::StaticDataChipType;
 
@@ -21,6 +22,18 @@ pub struct ValidaBootData {
     pub max_trace_height: u32,
     /// A binary representation of a loaded ELF
     pub program_file: Vec<u8>,
+}
+
+impl MemoryFootprint for ValidaBootData {
+    fn memory_footprint(&self) -> usize {
+        self.program_rom.memory_footprint()
+            + self.program_table_type.memory_footprint()
+            + self.static_data.memory_footprint()
+            + self.static_data_chip_type.memory_footprint()
+            + self.initial_register_values.memory_footprint()
+            + self.max_trace_height.memory_footprint()
+            + self.program_file.memory_footprint()
+    }
 }
 
 /// The same as `ValidaBootData`, but with the segment number and static data is optional.
@@ -44,4 +57,21 @@ pub struct ValidaSegmentBootData {
     /// If trace generation is enabled (`--fast` command line arg / `log_enabled` fn)
     /// Passed from the `MultiSegmentBasicMachine` to the child `BasicMachines`
     pub log_enabled: bool,
+    /// Initial memory state for this segment
+    pub initial_memory_state: ValidaMemoryBackend,
+}
+
+impl MemoryFootprint for ValidaSegmentBootData {
+    fn memory_footprint(&self) -> usize {
+        self.initial_register_values.memory_footprint()
+            + self.program_rom.memory_footprint()
+            + self.program_table_type.memory_footprint()
+            + self.segment_number.memory_footprint()
+            + self.max_trace_height.memory_footprint()
+            + self.program_file.memory_footprint()
+            + self.static_data.memory_footprint()
+            + self.static_data_chip_type.memory_footprint()
+            + self.log_enabled.memory_footprint()
+            + self.initial_memory_state.memory_footprint()
+    }
 }

@@ -7,7 +7,7 @@ use valida_machine::{Word, MEMORY_CELL_BYTES};
 use p3_air::{Air, AirBuilder, AirBuilderWithPublicValues, BaseAir};
 use p3_field::{AbstractField, PrimeField};
 use p3_matrix::MatrixRowSlices;
-use valida_opcodes::BYTES_PER_INSTR;
+use valida_opcodes::{map_opcode, map_opcode_to_field_value, Opcode, BYTES_PER_INSTR};
 
 impl<F> BaseAir<F> for CpuChip {
     fn width(&self) -> usize {
@@ -76,12 +76,123 @@ where
             reduce::<AB>(&base, local.read_value_1()),
         );
 
+        // Ensure that all operation selector flags are boolean values.
+        builder.assert_bool(local.opcode_flags.is_bus_op);
+        builder.assert_bool(local.opcode_flags.is_pointer_op);
+        builder.assert_bool(local.opcode_flags.is_load);
+        builder.assert_bool(local.opcode_flags.is_load_u8);
+        builder.assert_bool(local.opcode_flags.is_load_s8);
+        builder.assert_bool(local.opcode_flags.is_store);
+        builder.assert_bool(local.opcode_flags.is_store_u8);
+        builder.assert_bool(local.opcode_flags.is_beq);
+        builder.assert_bool(local.opcode_flags.is_bne);
+        builder.assert_bool(local.opcode_flags.is_jal);
+        builder.assert_bool(local.opcode_flags.is_jalv);
+        builder.assert_bool(local.opcode_flags.is_imm32);
+        builder.assert_bool(local.opcode_flags.is_advice);
+        builder.assert_bool(local.opcode_flags.is_stop);
+        builder.assert_bool(local.opcode_flags.is_loadfp);
+        builder.assert_bool(local.opcode_flags.is_write);
+
+        // Ensure that all immediate operand selector flags are boolean values.
+        builder.assert_bool(local.opcode_flags.is_imm_op);
+        builder.assert_bool(local.opcode_flags.is_left_imm_op);
+        // Enforce that at most one operation selector is active (i.e., set to 1) per row.
+        let sum_opcode_flags = local.opcode_flags.is_bus_op
+            + local.opcode_flags.is_pointer_op
+            + local.opcode_flags.is_load
+            + local.opcode_flags.is_load_u8
+            + local.opcode_flags.is_load_s8
+            + local.opcode_flags.is_store
+            + local.opcode_flags.is_store_u8
+            + local.opcode_flags.is_beq
+            + local.opcode_flags.is_bne
+            + local.opcode_flags.is_jal
+            + local.opcode_flags.is_jalv
+            + local.opcode_flags.is_imm32
+            + local.opcode_flags.is_advice
+            + local.opcode_flags.is_stop
+            + local.opcode_flags.is_loadfp
+            + local.opcode_flags.is_write;
+        builder.assert_bool(sum_opcode_flags);
+
+        // (TODO: we'd need to range check opcode_lo4, since it should be less thatn 16)
+        builder.assert_eq(
+            local.instruction.opcode,
+            local.instruction.opcode_lo4 * AB::Expr::one()
+                + local.instruction.opcode_hi28 * AB::Expr::from_canonical_u32(16),
+        );
+
+        builder
+            .when(local.is_real)
+            .when_ne(local.instruction.opcode_lo4, AB::Expr::one())
+            .assert_one(local.opcode_flags.is_bus_op);
+
+        builder
+            .when_ne(local.opcode_flags.is_bus_op, AB::Expr::one())
+            .assert_eq(
+                local.instruction.opcode,
+                local.opcode_flags.is_pointer_op
+                    * (AB::Expr::from_canonical_u32(map_opcode(Opcode::KECCAKF as u32)))
+                    + local.opcode_flags.is_load
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::LOAD32 as u32)))
+                    + local.opcode_flags.is_load_u8
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::LOADU8 as u32)))
+                    + local.opcode_flags.is_load_s8
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::LOADS8 as u32)))
+                    + local.opcode_flags.is_store
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::STORE32 as u32)))
+                    + local.opcode_flags.is_store_u8
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::STOREU8 as u32)))
+                    + local.opcode_flags.is_beq
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::BEQ as u32)))
+                    + local.opcode_flags.is_bne
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::BNE as u32)))
+                    + local.opcode_flags.is_jal
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::JAL as u32)))
+                    + local.opcode_flags.is_jalv
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::JALV as u32)))
+                    + local.opcode_flags.is_imm32
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::IMM32 as u32)))
+                    + local.opcode_flags.is_advice
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::READ_ADVICE as u32)))
+                    + local.opcode_flags.is_stop
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::STOP as u32)))
+                    + local.opcode_flags.is_loadfp
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::LOADFP as u32)))
+                    + local.opcode_flags.is_write
+                        * (AB::Expr::from_canonical_u32(map_opcode(Opcode::WRITE as u32))),
+            );
+
+        let sum_opcode_flags = local.opcode_flags.is_bus_op
+            + local.opcode_flags.is_pointer_op
+            + local.opcode_flags.is_load
+            + local.opcode_flags.is_load_u8
+            + local.opcode_flags.is_load_s8
+            + local.opcode_flags.is_store
+            + local.opcode_flags.is_store_u8
+            + local.opcode_flags.is_beq
+            + local.opcode_flags.is_bne
+            + local.opcode_flags.is_jal
+            + local.opcode_flags.is_jalv
+            + local.opcode_flags.is_imm32
+            + local.opcode_flags.is_advice
+            + local.opcode_flags.is_stop
+            + local.opcode_flags.is_loadfp
+            + local.opcode_flags.is_write;
+        builder.assert_bool(sum_opcode_flags.clone());
+        builder.when(local.is_real).assert_one(sum_opcode_flags);
+
         // "Stop" constraints (to check that program execution was not stopped prematurely)
 
         builder
             .when_transition()
             .when(local.opcode_flags.is_stop)
             .assert_eq(next.pc, AB::Expr::zero()); // zero, because padded with zeros
+        builder
+            .when_ne(local.is_last_segment, AB::Expr::zero())
+            .when_transition()
+            .assert_eq(local.opcode_flags.is_stop, local.is_real - next.is_real);
         builder
             .when_ne(local.is_last_segment, AB::Expr::zero())
             .when_last_row()

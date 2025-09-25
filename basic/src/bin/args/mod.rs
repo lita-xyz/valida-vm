@@ -162,6 +162,14 @@ pub struct ProveCommand {
     /// Memory backend to use
     #[arg(name = "Memory Backend", long = "backend", value_parser = ["btree", "hashmap", "array", "lean"], default_value = "btree")]
     pub backend_type: String,
+
+    /// Maximum number of segments to process in parallel
+    #[arg(
+        long = "max-parallel-segments",
+        name = "Max Parallel Segments",
+        default_value = "1"
+    )]
+    pub max_parallel_segments: usize,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Parser)]

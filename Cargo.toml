@@ -29,30 +29,33 @@ members = [
     "recursive-verifier-api",
     "recursive-verifier",
 ]
+exclude = [
+    "basic_macro"
+]
 
 resolver = "2"
 
 [workspace.dependencies]
-p3-air = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-baby-bear = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-commit = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-challenger = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-dft = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-field = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-fri = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-goldilocks = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-interpolation = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-keccak = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-matrix = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main", features = [
+p3-air = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-baby-bear = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-commit = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-challenger = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-dft = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-field = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-fri = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-goldilocks = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-interpolation = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-keccak = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-matrix = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend", features = [
     "serde",
 ] }
-p3-maybe-rayon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-mds = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-merkle-tree = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-poseidon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-symmetric = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-uni-stark = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
-p3-util = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "main" }
+p3-maybe-rayon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-mds = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-merkle-tree = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-poseidon = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-symmetric = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-uni-stark = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
+p3-util = { git = "https://github.com/lita-xyz/Plonky3.git", branch = "carlo/SyncSend" }
 itertools = "0.14.0"
 smallvec = "1.13.2"
 spin = "0.9"

@@ -10,7 +10,7 @@ type ValMat<SC> = RowMajorMatrix<Val<SC>>;
 type Com<SC> = <<SC as StarkConfig>::Pcs as Pcs<Val<SC>, ValMat<SC>>>::Commitment;
 type PcsProof<SC> = <<SC as StarkConfig>::Pcs as Pcs<Val<SC>, ValMat<SC>>>::Proof;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(bound = "SC::Challenge: Serialize + DeserializeOwned")]
 pub struct MachineProof<SC: StarkConfig> {
     pub commitments: Commitments<Com<SC>>,
@@ -21,7 +21,7 @@ pub struct MachineProof<SC: StarkConfig> {
 /// Segment proof is the `MachineProof` of a single segment in a multi segment
 /// machine with additional auxiliary data needed for verification, i.e. some of
 /// the instance data (program counters & frame pointers in particular)
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(bound = "SC::Challenge: Serialize + DeserializeOwned")]
 pub struct SegmentProof<SC: StarkConfig> {
     pub proof: MachineProof<SC>,
@@ -30,7 +30,7 @@ pub struct SegmentProof<SC: StarkConfig> {
 
 /// Variation of the `ValidaSegmentInstanceData` of all the fields that are required to
 /// verify the proof.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct ProofSegmentInstanceData {
     // Initial program counter for this segment
     pub pc_init: u32,

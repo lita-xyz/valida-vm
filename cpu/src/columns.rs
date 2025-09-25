@@ -60,6 +60,8 @@ pub struct CpuCols<T> {
 #[derive(Default, Debug)]
 pub struct InstructionCols<T> {
     pub opcode: T,
+    pub opcode_hi28: T,
+    pub opcode_lo4: T,
     pub operands: Operands<T>,
 }
 
