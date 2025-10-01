@@ -539,9 +539,7 @@ impl CpuChip {
         AB::Expr: Debug,
         AB::Var: Debug,
     {
-        builder
-            .when_first_row()
-            .assert_eq(local.is_last_segment, public.is_last_segment);
+        builder.assert_eq(local.is_last_segment, public.is_last_segment);
         builder.assert_bool(local.is_last_segment);
     }
 }
