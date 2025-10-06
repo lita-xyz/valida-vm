@@ -1251,20 +1251,19 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pest"
-version = "2.7.15"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b7cafe60d6cf8e62e1b9b2ea516a089c008945bb5a275416789e7db0bc199dc"
+checksum = "989e7521a040efde50c3ab6bbadafbe15ab6dc042686926be59ac35d74607df4"
 dependencies = [
  "memchr",
- "thiserror 2.0.11",
  "ucd-trie",
 ]
 
 [[package]]
 name = "pest_derive"
-version = "2.7.15"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "816518421cfc6887a0d62bf441b6ffb4536fcc926395a69e1a85852d4363f57e"
+checksum = "187da9a3030dbafabbbfb20cb323b976dc7b7ce91fcd84f2f74d6e31d378e2de"
 dependencies = [
  "pest",
  "pest_generator",
@@ -1272,9 +1271,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.7.15"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d1396fd3a870fc7838768d171b4616d5c91f6cc25e377b673d714567d99377b"
+checksum = "49b401d98f5757ebe97a26085998d6c0eecec4995cad6ab7fc30ffdf4b052843"
 dependencies = [
  "pest",
  "pest_meta",
@@ -1285,11 +1284,10 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.7.15"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1e58089ea25d717bfd31fb534e4f3afcc2cc569c70de3e239778991ea3b7dea"
+checksum = "72f27a2cfee9f9039c4d86faa5af122a0ac3851441a34865b8a043b46be0065a"
 dependencies = [
- "once_cell",
  "pest",
  "sha2",
 ]
@@ -1479,7 +1477,7 @@ dependencies = [
 
 [[package]]
 name = "recursive-verifier"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ark-std",
  "clap",
@@ -1490,7 +1488,7 @@ dependencies = [
 
 [[package]]
 name = "recursive-verifier-api"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ciborium",
  "p3-baby-bear",
@@ -1520,7 +1518,7 @@ checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
 dependencies = [
  "getrandom",
  "libredox",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -1539,7 +1537,7 @@ dependencies = [
  "strip-ansi-escapes",
  "strum 0.26.3",
  "strum_macros 0.26.4",
- "thiserror 1.0.69",
+ "thiserror",
  "unicode-segmentation",
  "unicode-width",
 ]
@@ -1892,16 +1890,7 @@ version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
 dependencies = [
- "thiserror-impl 1.0.69",
-]
-
-[[package]]
-name = "thiserror"
-version = "2.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d452f284b73e6d76dd36758a0c8684b1d5be31f92b89d07fd5822175732206fc"
-dependencies = [
- "thiserror-impl 2.0.11",
+ "thiserror-impl",
 ]
 
 [[package]]
@@ -1909,17 +1898,6 @@ name = "thiserror-impl"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.98",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "2.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26afc1baea8a989337eeb52b6e72a039780ce45c3edfcc9c5b9d112feeb173c2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2053,7 +2031,7 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "valida-alu-u32"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "itertools 0.14.0",
  "p3-air",
@@ -2079,7 +2057,7 @@ dependencies = [
 
 [[package]]
 name = "valida-assembler"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "byteorder",
  "clap",
@@ -2092,7 +2070,7 @@ dependencies = [
 
 [[package]]
 name = "valida-basic"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ark-std",
  "ciborium",
@@ -2139,7 +2117,7 @@ dependencies = [
 
 [[package]]
 name = "valida-basic-api"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ark-std",
  "bincode",
@@ -2196,7 +2174,7 @@ dependencies = [
 
 [[package]]
 name = "valida-basic-api-wasm"
-version = "0.10.0"
+version = "1.0.0"
 dependencies = [
  "console_error_panic_hook",
  "getrandom",
@@ -2208,7 +2186,7 @@ dependencies = [
 
 [[package]]
 name = "valida-bus"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2220,7 +2198,7 @@ dependencies = [
 
 [[package]]
 name = "valida-bytes"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-field",
@@ -2237,7 +2215,7 @@ dependencies = [
 
 [[package]]
 name = "valida-cpu"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2258,7 +2236,7 @@ dependencies = [
 
 [[package]]
 name = "valida-derive"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2267,7 +2245,7 @@ dependencies = [
 
 [[package]]
 name = "valida-elf"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "elf",
  "valida-machine",
@@ -2275,7 +2253,7 @@ dependencies = [
 
 [[package]]
 name = "valida-elliptic"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "halo2curves",
  "p3-field",
@@ -2286,7 +2264,7 @@ dependencies = [
 
 [[package]]
 name = "valida-keccak"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2312,7 +2290,7 @@ dependencies = [
 
 [[package]]
 name = "valida-lookups"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-field",
@@ -2328,7 +2306,7 @@ dependencies = [
 
 [[package]]
 name = "valida-machine"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "bitvec",
  "byteorder",
@@ -2358,7 +2336,7 @@ dependencies = [
 
 [[package]]
 name = "valida-memory"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "bitvec",
  "fxhash",
@@ -2384,7 +2362,7 @@ dependencies = [
 
 [[package]]
 name = "valida-memory-footprint"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "bitvec",
  "hashbrown 0.12.3",
@@ -2396,7 +2374,7 @@ dependencies = [
 
 [[package]]
 name = "valida-native-field"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "itertools 0.14.0",
  "p3-air",
@@ -2418,7 +2396,7 @@ dependencies = [
 
 [[package]]
 name = "valida-opcodes"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "num_enum",
  "p3-field",
@@ -2426,7 +2404,7 @@ dependencies = [
 
 [[package]]
 name = "valida-output"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2449,14 +2427,14 @@ dependencies = [
 
 [[package]]
 name = "valida-persistence"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "valida-machine",
 ]
 
 [[package]]
 name = "valida-program"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-field",
@@ -2475,7 +2453,7 @@ dependencies = [
 
 [[package]]
 name = "valida-range"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2501,7 +2479,7 @@ dependencies = [
 
 [[package]]
 name = "valida-static-data"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-air",
  "p3-baby-bear",
@@ -2518,14 +2496,14 @@ dependencies = [
 
 [[package]]
 name = "valida-util"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "p3-field",
 ]
 
 [[package]]
 name = "valida-verifier"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "valida-machine",
 ]
